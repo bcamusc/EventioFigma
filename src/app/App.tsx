@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Search, Calendar, MapPin, Heart, Sun, Moon, Home, Compass, Star, User, Share2, X, Users, Clock, CalendarPlus, ArrowLeft, Globe, Menu } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import InstallPrompt from './components/InstallPrompt';
+import { supabase } from '../lib/supabase';
 
 const categories = ['Todos', 'Teatro', 'Stand-up', 'Música', 'Cine'];
 const dateFilters = ['Hoy', 'Este fin de semana'];
@@ -21,485 +22,69 @@ const categoryColors = {
   'Cine': { bg: 'from-cyan-600 to-blue-700', badge: 'bg-cyan-600', light: 'from-cyan-500 to-blue-600' }
 };
 
-const events = [
+// Static fallback events (moved inside component as initial state if needed)
+const staticEvents = [
   {
     id: 1,
-    title: 'Festival de Música Electrónica',
+    title: 'Cargando eventos...',
     category: 'Música',
     genre: 'Electrónica',
-    date: '15 Abr 2026',
-    time: '21:00',
-    location: 'Parque Central',
+    date: '...',
+    time: '...',
+    location: '...',
     image: 'https://images.unsplash.com/photo-1706419202046-e4982f00b082?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 2500,
+    attendees: 0,
     featured: true,
-    description: 'Una noche épica con los mejores DJs de la escena electrónica internacional. Sonido envolvente y visuales impactantes.',
-    price: '€45',
-    match: 92
-  },
-  {
-    id: 2,
-    title: 'Romeo y Julieta',
-    category: 'Teatro',
-    genre: 'Clásica',
-    date: '18 Abr 2026',
-    time: '20:00',
-    location: 'Teatro Nacional',
-    image: 'https://images.unsplash.com/photo-1719935115623-4857df23f3c6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 800,
-    featured: true,
-    description: 'La obra clásica de Shakespeare cobra vida en una producción contemporánea que reinterpreta el amor y el conflicto.',
-    director: 'María González',
-    duration: '2h 30min',
-    cast: 'Compañía Nacional de Teatro',
-    price: '€35',
-    match: 88
-  },
-  {
-    id: 3,
-    title: 'Noche de Comedia en Vivo',
-    category: 'Stand-up',
-    date: '20 Abr 2026',
-    time: '22:00',
-    location: 'Comedy Club Central',
-    image: 'https://images.unsplash.com/photo-1717988241394-48c24220d13d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 1200,
-    featured: false,
-    description: 'Los mejores comediantes locales te harán reír sin parar. Una noche de humor fresco e irreverente.',
-    price: '€20',
-    match: 76
-  },
-  {
-    id: 4,
-    title: 'Concierto Rock en Vivo',
-    category: 'Música',
-    genre: 'Rock',
-    date: '22 Abr 2026',
-    time: '20:30',
-    location: 'Estadio Municipal',
-    image: 'https://images.unsplash.com/photo-1644959166965-8606f1ce1f06?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 5000,
-    featured: true,
-    description: 'Las bandas de rock más icónicas se reúnen en un concierto masivo. Pura energía y guitarra eléctrica.',
-    price: '€55',
-    match: 95
-  },
-  {
-    id: 5,
-    title: 'Noche de Jazz',
-    category: 'Música',
-    genre: 'Jazz',
-    date: '25 Abr 2026',
-    time: '21:30',
-    location: 'Teatro Principal',
-    image: 'https://images.unsplash.com/photo-1549452026-91574599e7f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 600,
-    featured: false,
-    description: 'Sumérgete en los sonidos del jazz clásico y contemporáneo con músicos de renombre mundial.',
-    price: '€40',
-    match: 84
-  },
-  {
-    id: 6,
-    title: 'Premiere: La Última Frontera',
-    category: 'Cine',
-    date: '28 Abr 2026',
-    time: '19:00',
-    location: 'Cinépolis Luxury',
-    image: 'https://images.unsplash.com/photo-1675674683873-1232862e3c64?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 3000,
-    featured: false,
-    description: 'Estreno exclusivo del thriller de ciencia ficción más esperado del año. Efectos especiales de última generación.',
-    price: '€15',
-    match: 71
-  },
-  {
-    id: 7,
-    title: 'Hamlet: Edición Moderna',
-    category: 'Teatro',
-    genre: 'Drama',
-    date: '30 Abr 2026',
-    time: '19:30',
-    location: 'Teatro Municipal',
-    image: 'https://images.unsplash.com/photo-1569342380852-035f42d9ca41?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 400,
-    featured: false,
-    description: 'Una reinterpretación audaz de la tragedia de Shakespeare ambientada en el mundo corporativo actual.',
-    director: 'Carlos Ruiz',
-    duration: '3h 15min',
-    cast: 'Teatro Experimental',
-    price: '€38',
-    match: 79
-  },
-  {
-    id: 8,
-    title: 'Stand-up Internacional',
-    category: 'Stand-up',
-    date: '5 May 2026',
-    time: '21:00',
-    location: 'Auditorio Central',
-    image: 'https://images.unsplash.com/photo-1770129966285-3945aee30f8b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 10000,
-    featured: true,
-    description: 'Los comediantes más famosos del mundo llegan a la ciudad. Una noche histórica de risas garantizadas.',
-    price: '€65',
-    match: 89
-  },
-  {
-    id: 9,
-    title: 'Festival de Cine Independiente',
-    category: 'Cine',
-    date: '8 May 2026',
-    time: '18:00',
-    location: 'Cine Royal',
-    image: 'https://images.unsplash.com/photo-1612389930565-6975454dc7cc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 1500,
-    featured: false,
-    description: 'Descubre nuevas voces del cine mundial. Proyecciones, charlas con directores y networking.',
-    price: '€12',
-    match: 82
-  },
-  {
-    id: 10,
-    title: 'Tributo a Queen',
-    category: 'Música',
-    genre: 'Tributo',
-    date: '10 May 2026',
-    time: '21:00',
-    location: 'Arena Central',
-    image: 'https://images.unsplash.com/photo-1549452026-91574599e7f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 3500,
-    featured: false,
-    description: 'La banda tributo más fiel a Queen recrea la magia de Freddie Mercury y sus compañeros.',
-    price: '€48',
-    match: 90
-  },
-  {
-    id: 11,
-    title: 'La Comedia de los Enredos',
-    category: 'Teatro',
-    genre: 'Comedia',
-    date: '12 Abr 2026',
-    time: '20:30',
-    location: 'Teatro de la Comedia',
-    image: 'https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 450,
-    featured: true,
-    description: 'Una hilarante comedia sobre malentendidos y situaciones absurdas que te harán llorar de risa.',
-    director: 'Ana López',
-    duration: '1h 45min',
-    cast: 'Compañía de la Risa',
-    price: '€28',
-    match: 85
-  },
-  {
-    id: 12,
-    title: 'El Fantasma de la Ópera',
-    category: 'Teatro',
-    genre: 'Musical',
-    date: '16 Abr 2026',
-    time: '19:00',
-    location: 'Gran Teatro',
-    image: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 1200,
-    featured: true,
-    description: 'El musical más emblemático de todos los tiempos regresa con una producción espectacular.',
-    director: 'Roberto Martínez',
-    duration: '2h 45min',
-    cast: 'Orquesta Sinfónica y Ballet Nacional',
-    price: '€65',
-    match: 93
-  },
-  {
-    id: 13,
-    title: 'Noches de Humor',
-    category: 'Stand-up',
-    date: '11 Abr 2026',
-    time: '22:30',
-    location: 'La Risoterapia',
-    image: 'https://images.unsplash.com/photo-1585699324551-f6c309eedeca?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 300,
-    featured: false,
-    description: 'Descubre nuevos talentos del stand-up local en una noche íntima llena de risas.',
-    price: '€15',
-    match: 72
-  },
-  {
-    id: 14,
-    title: 'Orquesta Sinfónica en Concierto',
-    category: 'Música',
-    genre: 'Clásica',
-    date: '13 Abr 2026',
-    time: '20:00',
-    location: 'Auditorio Nacional',
-    image: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 1800,
-    featured: false,
-    description: 'Obras maestras de Beethoven y Mozart interpretadas por la Orquesta Sinfónica Nacional.',
-    price: '€50',
-    match: 81
-  },
-  {
-    id: 15,
-    title: 'Cine Bajo las Estrellas',
-    category: 'Cine',
-    date: '14 Abr 2026',
-    time: '21:30',
-    location: 'Parque de la Ciudad',
-    image: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 2000,
-    featured: true,
-    description: 'Proyección al aire libre de clásicos del cine. Trae tu manta y disfruta de una noche mágica.',
-    price: '€8',
-    match: 78
-  },
-  {
-    id: 16,
-    title: 'Comedy Show con Invitados',
-    category: 'Stand-up',
-    date: '17 Abr 2026',
-    time: '21:00',
-    location: 'Teatro Risas',
-    image: 'https://images.unsplash.com/photo-1527224857830-43a7acc85260?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 850,
-    featured: false,
-    description: 'Los mejores comediantes de la ciudad comparten escenario con invitados internacionales.',
-    price: '€25',
-    match: 83
-  },
-  {
-    id: 17,
-    title: 'Festival de Rock Alternativo',
-    category: 'Música',
-    genre: 'Rock',
-    date: '19 Abr 2026',
-    time: '18:00',
-    location: 'Explanada del Rock',
-    image: 'https://images.unsplash.com/photo-1501612780327-45045538702b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 4200,
-    featured: true,
-    description: 'Cuatro bandas emergentes de rock alternativo en un festival que durará hasta la medianoche.',
-    price: '€35',
-    match: 91
-  },
-  {
-    id: 18,
-    title: 'Macbeth',
-    category: 'Teatro',
-    genre: 'Drama',
-    date: '21 Abr 2026',
-    time: '20:30',
-    location: 'Teatro Clásico',
-    image: 'https://images.unsplash.com/photo-1503095396549-807759245b35?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 520,
-    featured: false,
-    description: 'La tragedia de Shakespeare sobre ambición y poder llevada al escenario con una puesta minimalista.',
-    director: 'Pedro Sánchez',
-    duration: '2h 15min',
-    cast: 'Teatro Experimental Moderno',
-    price: '€32',
-    match: 77
-  },
-  {
-    id: 19,
-    title: 'Jazz & Blues Night',
-    category: 'Música',
-    genre: 'Jazz',
-    date: '23 Abr 2026',
-    time: '22:00',
-    location: 'Blue Note Club',
-    image: 'https://images.unsplash.com/photo-1415201364774-f6f0bb35f28f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 380,
-    featured: false,
-    description: 'Una velada íntima con los mejores exponentes del jazz y blues de la región.',
-    price: '€35',
-    match: 86
-  },
-  {
-    id: 20,
-    title: 'Maratón de Películas de Horror',
-    category: 'Cine',
-    date: '24 Abr 2026',
-    time: '20:00',
-    location: 'Cineclub Terror',
-    image: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 650,
-    featured: false,
-    description: 'Tres películas de horror clásicas en una noche para los amantes del género.',
-    price: '€18',
-    match: 68
-  },
-  {
-    id: 21,
-    title: 'Stand-up: Gira Nacional',
-    category: 'Stand-up',
-    date: '26 Abr 2026',
-    time: '21:30',
-    location: 'Palacio de Congresos',
-    image: 'https://images.unsplash.com/photo-1611348524140-53c9a25263d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 2800,
-    featured: true,
-    description: 'El comediante más famoso del país presenta su nuevo show en exclusiva.',
-    price: '€42',
-    match: 88
-  },
-  {
-    id: 22,
-    title: 'El Lago de los Cisnes',
-    category: 'Teatro',
-    genre: 'Musical',
-    date: '27 Abr 2026',
-    time: '19:30',
-    location: 'Teatro Real',
-    image: 'https://images.unsplash.com/photo-1518834107812-67b0b7c58434?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 950,
-    featured: false,
-    description: 'Ballet clásico interpretado por el Ballet Nacional con música en vivo.',
-    director: 'Carmen Ruiz',
-    duration: '2h 20min',
-    cast: 'Ballet Nacional',
-    price: '€58',
-    match: 82
-  },
-  {
-    id: 23,
-    title: 'EDM Sunset Festival',
-    category: 'Música',
-    genre: 'Electrónica',
-    date: '29 Abr 2026',
-    time: '19:00',
-    location: 'Playa del Sol',
-    image: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 6000,
-    featured: true,
-    description: 'Festival de música electrónica con vistas al atardecer. Los mejores DJs internacionales.',
-    price: '€52',
-    match: 94
-  },
-  {
-    id: 24,
-    title: 'Cine Francés Contemporáneo',
-    category: 'Cine',
-    date: '1 May 2026',
-    time: '18:30',
-    location: 'Cine Arte',
-    image: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 420,
-    featured: false,
-    description: 'Ciclo de películas francesas contemporáneas con subtítulos en español.',
-    price: '€10',
-    match: 75
-  },
-  {
-    id: 25,
-    title: 'La Casa de Bernarda Alba',
-    category: 'Teatro',
-    genre: 'Drama',
-    date: '2 May 2026',
-    time: '20:00',
-    location: 'Teatro Lorca',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 680,
-    featured: false,
-    description: 'La obra maestra de García Lorca sobre represión y libertad en una nueva interpretación.',
-    director: 'Isabel Fernández',
-    duration: '2h 10min',
-    cast: 'Compañía de Teatro Clásico',
-    price: '€36',
-    match: 80
-  },
-  {
-    id: 26,
-    title: 'Tributo a The Beatles',
-    category: 'Música',
-    genre: 'Tributo',
-    date: '3 May 2026',
-    time: '21:00',
-    location: 'Sala Liverpool',
-    image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 1400,
-    featured: false,
-    description: 'Revive la magia de The Beatles con la mejor banda tributo de Europa.',
-    price: '€38',
-    match: 87
-  },
-  {
-    id: 27,
-    title: 'Comedia Improvisada',
-    category: 'Stand-up',
-    date: '4 May 2026',
-    time: '22:00',
-    location: 'El Sótano Comedy',
-    image: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 180,
-    featured: false,
-    description: 'Show de improvisación donde los comediantes crean humor en tiempo real con ayuda del público.',
-    price: '€12',
-    match: 73
-  },
-  {
-    id: 28,
-    title: 'Sinfonía de Primavera',
-    category: 'Música',
-    genre: 'Clásica',
-    date: '6 May 2026',
-    time: '19:30',
-    location: 'Palacio de la Música',
-    image: 'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 2200,
-    featured: true,
-    description: 'Concierto especial de primavera con obras de Vivaldi, Chopin y Debussy.',
-    price: '€55',
-    match: 85
-  },
-  {
-    id: 29,
-    title: 'Mucho Ruido y Pocas Nueces',
-    category: 'Teatro',
-    genre: 'Comedia',
-    date: '7 May 2026',
-    time: '21:00',
-    location: 'Teatro de la Villa',
-    image: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 540,
-    featured: false,
-    description: 'La comedia romántica de Shakespeare adaptada a la época actual con humor fresco.',
-    director: 'Laura Jiménez',
-    duration: '1h 50min',
-    cast: 'Compañía Joven de Teatro',
-    price: '€26',
-    match: 79
-  },
-  {
-    id: 30,
-    title: 'Noche de Cine Clásico',
-    category: 'Cine',
-    date: '9 May 2026',
-    time: '20:30',
-    location: 'Cine Retro',
-    image: 'https://images.unsplash.com/photo-1542204165-65bf26472b9b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-    attendees: 890,
-    featured: false,
-    description: 'Proyección especial de clásicos de Hollywood en pantalla grande con audio remasterizado.',
-    price: '€14',
-    match: 76
+    description: 'Cargando contenido desde la base de datos...',
+    price: '...',
+    match: 0
   }
 ];
 
 export default function App() {
+  const [events, setEvents] = useState<any[]>(staticEvents);
+  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
   const [selectedDateFilter, setSelectedDateFilter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
   const [isLightMode, setIsLightMode] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<typeof events[0] | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
   const [showSearchBar, setShowSearchBar] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('Español');
   const [selectedCity, setSelectedCity] = useState('Madrid');
   const [isScrolled, setIsScrolled] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+
+  useEffect(() => {
+    async function fetchEvents() {
+      try {
+        const { data, error } = await supabase
+          .from('events')
+          .select('*')
+          .order('date', { ascending: true });
+
+        if (error) throw error;
+        if (data) {
+          // Map DB columns to UI expectations if they differ
+          const mappedEvents = data.map((e: any) => ({
+            ...e,
+            category: e.category || 'Música',
+            featured: e.featured || false
+          }));
+          setEvents(mappedEvents);
+        }
+      } catch (err) {
+        console.error('Error fetching events:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchEvents();
+  }, []);
 
   useEffect(() => {
     // Set theme-color meta tag

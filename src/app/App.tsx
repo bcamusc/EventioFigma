@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabase';
 import { signInWithGoogle, signOut, loadFavorites, addFavorite, removeFavorite, trackActivity } from '../lib/auth';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 
-const categories = ['Todos', 'Musica', 'Teatro', 'Stand-up', 'Cine'];
+const DEFAULT_CATEGORIES = ['Musica', 'Teatro', 'Stand-up', 'Cine'];
 const dateFilters = ['Hoy', 'Este fin de semana'];
 const searchSuggestions = ['Conciertos rock', 'Teatro clásico', 'Stand-up esta semana', 'Jazz en vivo', 'Cine independiente'];
 
@@ -62,6 +62,8 @@ const staticEvents = [
 export default function App() {
   const [events, setEvents] = useState<any[]>(staticEvents);
   const [loading, setLoading] = useState(true);
+  const [activeCategories, setActiveCategories] = useState<string[]>(['Musica', 'Teatro', 'Stand-up', 'Cine']);
+  const [activeComunas, setActiveComunas] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
   const [selectedDateFilter, setSelectedDateFilter] = useState<string | null>(null);
@@ -114,13 +116,30 @@ export default function App() {
     setShowProfile(false);
   };
 
+  // Cargar config desde admin
+  useEffect(() => {
+    async function loadConfig() {
+      const { data } = await supabase
+        .from('app_settings')
+        .select('id, value')
+        .in('id', ['categories', 'comunas']);
+      if (data) {
+        for (const row of data) {
+          if (row.id === 'categories') setActiveCategories(row.value);
+          if (row.id === 'comunas') setActiveComunas(row.value);
+        }
+      }
+    }
+    loadConfig();
+  }, []);
+
   useEffect(() => {
     async function fetchEvents() {
       try {
         const { data, error } = await supabase
           .from('events')
           .select('*, venues(name, comuna)')
-          .in('category', ['Musica', 'Teatro', 'Stand-up', 'Cine'])
+          .in('category', activeCategories.length > 0 ? activeCategories : ['Musica', 'Teatro', 'Stand-up', 'Cine'])
           .gte('datetime', new Date().toISOString())
           .order('datetime', { ascending: true })
           .limit(50);
@@ -330,7 +349,7 @@ export default function App() {
                         All
                       </button>
 
-                      {categories.filter(c => c !== 'Todos').map((category) => (
+                      {activeCategories.map((category) => (
                         <button
                           type="button"
                           key={category}
@@ -661,7 +680,7 @@ export default function App() {
                           All
                         </button>
 
-                        {categories.filter(c => c !== 'Todos').map((category) => (
+                        {activeCategories.map((category) => (
                           <button
                             key={category}
                             onClick={() => {

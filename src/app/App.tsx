@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Search, Calendar, MapPin, Heart, Sun, Moon, Home, Compass, Star, User, Share2, X, Users, Clock, CalendarPlus, ArrowLeft, Globe, Menu } from 'lucide-react';
+import { Search, Calendar, MapPin, Heart, Sun, Moon, Home, Compass, Star, User, Share2, X, Users, Clock, CalendarPlus, ArrowLeft, Globe, Menu, LogIn, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import InstallPrompt from './components/InstallPrompt';
+import { supabase } from '../lib/supabase';
+import { signInWithGoogle, signOut, loadFavorites, addFavorite, removeFavorite, trackActivity } from '../lib/auth';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
 
 const categories = ['Todos', 'Teatro', 'Stand-up', 'Música', 'Cine'];
 const dateFilters = ['Hoy', 'Este fin de semana'];
@@ -501,6 +504,38 @@ export default function App() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [displayedEventsCount, setDisplayedEventsCount] = useState(10);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [authLoading, setAuthLoading] = useState(false);
+
+  // Auth: cargar sesión inicial y escuchar cambios
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setUser(data.session?.user ?? null);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      if (currentUser) {
+        const saved = await loadFavorites(currentUser.id);
+        setFavorites(saved);
+      } else {
+        setFavorites(new Set());
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignIn = async () => {
+    setAuthLoading(true);
+    try { await signInWithGoogle(); }
+    catch (err) { console.error('Error signing in:', err); }
+    finally { setAuthLoading(false); }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    setShowProfile(false);
+  };
 
   useEffect(() => {
     // Set theme-color meta tag
@@ -597,6 +632,7 @@ export default function App() {
     const event = events.find(e => e.id === eventId);
     if (event) {
       setSelectedEvent(event);
+      if (user) trackActivity(user.id, 'view', eventId, { title: event.title, category: event.category });
     }
   };
 
@@ -606,8 +642,10 @@ export default function App() {
       const newSet = new Set(prev);
       if (newSet.has(eventId)) {
         newSet.delete(eventId);
+        if (user) { removeFavorite(user.id, eventId); trackActivity(user.id, 'unfavorite', eventId); }
       } else {
         newSet.add(eventId);
+        if (user) { addFavorite(user.id, eventId); trackActivity(user.id, 'favorite', eventId); }
       }
       return newSet;
     });
@@ -1679,11 +1717,37 @@ export default function App() {
 
               <div className="px-4 pt-6">
                 <div className="text-center mb-8">
-                  <div className={`w-24 h-24 rounded-full mx-auto mb-4 ${isLightMode ? 'bg-neutral-200' : 'bg-neutral-800'} flex items-center justify-center`}>
-                    <User size={40} className={isLightMode ? 'text-neutral-600' : 'text-neutral-400'} />
-                  </div>
-                  <h3 className={`text-2xl mb-1 ${isLightMode ? 'text-neutral-900' : 'text-white'}`}>Mi Perfil</h3>
-                  <p className={`${isLightMode ? 'text-neutral-600' : 'text-neutral-400'}`}>usuario@ejemplo.com</p>
+                  {user?.user_metadata?.avatar_url ? (
+                    <img src={user.user_metadata.avatar_url} alt="avatar" className="w-24 h-24 rounded-full mx-auto mb-4 object-cover" />
+                  ) : (
+                    <div className={`w-24 h-24 rounded-full mx-auto mb-4 ${isLightMode ? 'bg-neutral-200' : 'bg-neutral-800'} flex items-center justify-center`}>
+                      <User size={40} className={isLightMode ? 'text-neutral-600' : 'text-neutral-400'} />
+                    </div>
+                  )}
+                  <h3 className={`text-2xl mb-1 ${isLightMode ? 'text-neutral-900' : 'text-white'}`}>
+                    {user?.user_metadata?.full_name || user?.email || 'Mi Perfil'}
+                  </h3>
+                  <p className={`${isLightMode ? 'text-neutral-600' : 'text-neutral-400'}`}>
+                    {user?.email || ''}
+                  </p>
+                  {!user ? (
+                    <button
+                      onClick={handleSignIn}
+                      disabled={authLoading}
+                      className="mt-4 flex items-center gap-2 mx-auto px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-medium transition-colors disabled:opacity-50"
+                    >
+                      <LogIn size={18} />
+                      {authLoading ? 'Conectando...' : 'Iniciar sesión con Google'}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleSignOut}
+                      className={`mt-4 flex items-center gap-2 mx-auto px-5 py-2 rounded-xl ${isLightMode ? 'bg-neutral-200 hover:bg-neutral-300 text-neutral-700' : 'bg-neutral-800 hover:bg-neutral-700 text-neutral-300'} text-sm transition-colors`}
+                    >
+                      <LogOut size={15} />
+                      Cerrar sesión
+                    </button>
+                  )}
                 </div>
 
                 <div className="space-y-3">

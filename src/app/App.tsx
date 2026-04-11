@@ -17,12 +17,20 @@ const subCategories: { [key: string]: string[] } = {
   'Cine': []
 };
 
-const categoryColors = {
+const categoryColors: Record<string, { bg: string; badge: string; light: string }> = {
   'Teatro': { bg: 'from-rose-600 to-pink-700', badge: 'bg-rose-600', light: 'from-rose-500 to-pink-600' },
   'Stand-up': { bg: 'from-amber-600 to-orange-700', badge: 'bg-amber-600', light: 'from-amber-500 to-orange-600' },
   'Música': { bg: 'from-purple-600 to-indigo-700', badge: 'bg-purple-600', light: 'from-purple-500 to-indigo-600' },
-  'Cine': { bg: 'from-cyan-600 to-blue-700', badge: 'bg-cyan-600', light: 'from-cyan-500 to-blue-600' }
+  'Cine': { bg: 'from-cyan-600 to-blue-700', badge: 'bg-cyan-600', light: 'from-cyan-500 to-blue-600' },
+  'Danza': { bg: 'from-pink-600 to-rose-700', badge: 'bg-pink-600', light: 'from-pink-500 to-rose-600' },
+  'Ópera': { bg: 'from-red-600 to-rose-700', badge: 'bg-red-600', light: 'from-red-500 to-rose-600' },
+  'Humor': { bg: 'from-yellow-600 to-amber-700', badge: 'bg-yellow-600', light: 'from-yellow-500 to-amber-600' },
+  'Infantil': { bg: 'from-green-600 to-emerald-700', badge: 'bg-green-600', light: 'from-green-500 to-emerald-600' },
+  'Circo': { bg: 'from-orange-600 to-red-700', badge: 'bg-orange-600', light: 'from-orange-500 to-red-600' },
+  'Deportes': { bg: 'from-blue-600 to-indigo-700', badge: 'bg-blue-600', light: 'from-blue-500 to-indigo-600' },
 };
+
+const defaultColors = { bg: 'from-neutral-600 to-neutral-700', badge: 'bg-neutral-600', light: 'from-neutral-500 to-neutral-600' };
 
 // Static fallback events (moved inside component as initial state if needed)
 const staticEvents = [
@@ -979,7 +987,7 @@ export default function App() {
                 <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 snap-x snap-mandatory scrollbar-hide">
                   {featuredEvents.map((event) => {
                     const isFavorite = favorites.has(event.id);
-                    const colors = categoryColors[event.category as keyof typeof categoryColors];
+                    const colors = categoryColors[event.category] || defaultColors;
 
                     return (
                       <div
@@ -1059,7 +1067,7 @@ export default function App() {
               <div className="space-y-3">
                 {filteredEvents.map((event) => {
                   const isFavorite = favorites.has(event.id);
-                  const colors = categoryColors[event.category as keyof typeof categoryColors];
+                  const colors = categoryColors[event.category] || defaultColors;
 
                   return (
                     <div
@@ -1182,7 +1190,7 @@ export default function App() {
                   <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
                     <div className="flex gap-2 mb-3 flex-wrap">
                       {(() => {
-                        const colors = categoryColors[selectedEvent.category as keyof typeof categoryColors];
+                        const colors = categoryColors[selectedEvent.category] || defaultColors;
                         return (
                           <>
                             <span className={`${colors.badge} text-white text-sm px-3 py-1.5 rounded-full`}>

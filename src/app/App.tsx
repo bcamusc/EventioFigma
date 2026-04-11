@@ -112,7 +112,8 @@ export default function App() {
         const { data, error } = await supabase
           .from('events')
           .select('*, venues(name, comuna)')
-          .order('datetime', { ascending: true });
+          .order('datetime', { ascending: true })
+          .limit(50);
 
         if (error) throw error;
         if (data) {

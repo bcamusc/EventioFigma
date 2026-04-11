@@ -6,28 +6,36 @@ import { supabase } from '../lib/supabase';
 import { signInWithGoogle, signOut, loadFavorites, addFavorite, removeFavorite, trackActivity } from '../lib/auth';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 
-const categories = ['Todos', 'Teatro', 'Stand-up', 'Música', 'Cine'];
+const categories = ['Todos', 'Musica', 'Stand-up', 'Teatro', 'Fiesta', 'Familia', 'Deportes', 'Cine', 'Danza', 'Gastronomia', 'Exposicion', 'Educacion'];
 const dateFilters = ['Hoy', 'Este fin de semana'];
 const searchSuggestions = ['Conciertos rock', 'Teatro clásico', 'Stand-up esta semana', 'Jazz en vivo', 'Cine independiente'];
 
 const subCategories: { [key: string]: string[] } = {
-  'Teatro': ['Clásica', 'Drama', 'Comedia', 'Musical'],
-  'Música': ['Rock', 'Jazz', 'Tributo', 'Electrónica', 'Clásica'],
-  'Stand-up': [],
-  'Cine': []
+  'Musica': ['Rock', 'Jazz', 'Electrónica', 'Clásica', 'Folclor', 'Cumbia', 'Salsa', 'Reggae', 'Hip-Hop', 'K-POP', 'Tropical', 'Tributo'],
+  'Teatro': ['Drama', 'Comedia', 'Musical', 'Infantil', 'Títeres', 'Clásico'],
+  'Stand-up': ['Humor', 'Improvisación'],
+  'Fiesta': ['Nocturna', 'Electrónica', 'Temática', 'Tropical', 'Salsa'],
+  'Familia': ['Infantil', 'Circo', 'Títeres', 'Nocturna', 'Temática', 'Feria', 'Museo'],
+  'Deportes': ['Fútbol', 'Baloncesto', 'Artes Marciales', 'Tenis', 'Ciclismo', 'Rugby', 'Boxeo', 'Esquí'],
+  'Cine': ['Ficción', 'Documental', 'Animación', 'Drama', 'Musical', 'Internacional'],
+  'Danza': ['Ballet', 'Contemporánea', 'Flamenco', 'Tango', 'Folclórica', 'Urbana'],
+  'Gastronomia': [],
+  'Exposicion': ['Arte', 'Historia', 'Ciencia'],
+  'Educacion': ['Taller', 'Curso', 'Seminario', 'Conferencia'],
 };
 
 const categoryColors: Record<string, { bg: string; badge: string; light: string }> = {
-  'Teatro': { bg: 'from-rose-600 to-pink-700', badge: 'bg-rose-600', light: 'from-rose-500 to-pink-600' },
-  'Stand-up': { bg: 'from-amber-600 to-orange-700', badge: 'bg-amber-600', light: 'from-amber-500 to-orange-600' },
-  'Música': { bg: 'from-purple-600 to-indigo-700', badge: 'bg-purple-600', light: 'from-purple-500 to-indigo-600' },
-  'Cine': { bg: 'from-cyan-600 to-blue-700', badge: 'bg-cyan-600', light: 'from-cyan-500 to-blue-600' },
-  'Danza': { bg: 'from-pink-600 to-rose-700', badge: 'bg-pink-600', light: 'from-pink-500 to-rose-600' },
-  'Ópera': { bg: 'from-red-600 to-rose-700', badge: 'bg-red-600', light: 'from-red-500 to-rose-600' },
-  'Humor': { bg: 'from-yellow-600 to-amber-700', badge: 'bg-yellow-600', light: 'from-yellow-500 to-amber-600' },
-  'Infantil': { bg: 'from-green-600 to-emerald-700', badge: 'bg-green-600', light: 'from-green-500 to-emerald-600' },
-  'Circo': { bg: 'from-orange-600 to-red-700', badge: 'bg-orange-600', light: 'from-orange-500 to-red-600' },
-  'Deportes': { bg: 'from-blue-600 to-indigo-700', badge: 'bg-blue-600', light: 'from-blue-500 to-indigo-600' },
+  'Musica':      { bg: 'from-purple-600 to-indigo-700',  badge: 'bg-purple-600',  light: 'from-purple-500 to-indigo-600' },
+  'Teatro':      { bg: 'from-rose-600 to-pink-700',      badge: 'bg-rose-600',    light: 'from-rose-500 to-pink-600' },
+  'Stand-up':    { bg: 'from-amber-600 to-orange-700',   badge: 'bg-amber-600',   light: 'from-amber-500 to-orange-600' },
+  'Fiesta':      { bg: 'from-fuchsia-600 to-pink-700',   badge: 'bg-fuchsia-600', light: 'from-fuchsia-500 to-pink-600' },
+  'Familia':     { bg: 'from-green-600 to-emerald-700',  badge: 'bg-green-600',   light: 'from-green-500 to-emerald-600' },
+  'Deportes':    { bg: 'from-blue-600 to-indigo-700',    badge: 'bg-blue-600',    light: 'from-blue-500 to-indigo-600' },
+  'Cine':        { bg: 'from-cyan-600 to-blue-700',      badge: 'bg-cyan-600',    light: 'from-cyan-500 to-blue-600' },
+  'Danza':       { bg: 'from-pink-600 to-rose-700',      badge: 'bg-pink-600',    light: 'from-pink-500 to-rose-600' },
+  'Gastronomia': { bg: 'from-orange-600 to-red-700',     badge: 'bg-orange-600',  light: 'from-orange-500 to-red-600' },
+  'Exposicion':  { bg: 'from-teal-600 to-cyan-700',      badge: 'bg-teal-600',    light: 'from-teal-500 to-cyan-600' },
+  'Educacion':   { bg: 'from-sky-600 to-blue-700',       badge: 'bg-sky-600',     light: 'from-sky-500 to-blue-600' },
 };
 
 const defaultColors = { bg: 'from-neutral-600 to-neutral-700', badge: 'bg-neutral-600', light: 'from-neutral-500 to-neutral-600' };

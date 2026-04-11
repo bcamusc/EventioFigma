@@ -490,17 +490,19 @@ const events = [
 ];
 
 export default function App() {
+  const [dbEvents, setDbEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
   const [selectedDateFilter, setSelectedDateFilter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
   const [isLightMode, setIsLightMode] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<typeof events[0] | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
   const [showSearchBar, setShowSearchBar] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('Español');
-  const [selectedCity, setSelectedCity] = useState('Madrid');
+  const [selectedCity, setSelectedCity] = useState('Santiago');
   const [isScrolled, setIsScrolled] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [displayedEventsCount, setDisplayedEventsCount] = useState(10);
@@ -536,6 +538,48 @@ export default function App() {
     await signOut();
     setShowProfile(false);
   };
+
+  // Cargar eventos reales desde Supabase
+  useEffect(() => {
+    async function fetchEvents() {
+      try {
+        const { data, error } = await supabase
+          .from('events')
+          .select('*, venues(name, comuna)')
+          .order('datetime', { ascending: true });
+
+        if (error) throw error;
+        if (data) {
+          const mappedEvents = data.map((e: any) => {
+            const dateObj = new Date(e.datetime);
+            const timeStr = isNaN(dateObj.getTime()) ? '20:00' : dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            const locationStr = e.venues ? `${e.venues.name}${e.venues.comuna ? `, ${e.venues.comuna}` : ''}` : 'Ubicación por confirmar';
+            return {
+              id: e.id,
+              title: e.title,
+              description: e.description,
+              image: e.image_url || 'https://images.unsplash.com/photo-1706419202046-e4982f00b082?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+              date: e.datetime || 'Próximamente',
+              time: timeStr,
+              location: locationStr,
+              category: e.category || 'Otros',
+              genre: e.subcategory || '',
+              price: e.price ? `$${e.price}` : 'Ver sitio',
+              featured: true,
+              match: 90,
+              attendees: 0,
+            };
+          });
+          setDbEvents(mappedEvents);
+        }
+      } catch (err) {
+        console.error('Error fetching events:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchEvents();
+  }, []);
 
   useEffect(() => {
     // Set theme-color meta tag
@@ -610,16 +654,19 @@ export default function App() {
     return true;
   };
 
-  const featuredEvents = events.filter(event => {
+  // Usar datos reales si están disponibles, si no mostrar loading
+  const activeEvents = dbEvents.length > 0 ? dbEvents : [];
+
+  const featuredEvents = activeEvents.filter(event => {
     const matchesCategory = selectedCategory === 'Todos' || event.category === selectedCategory;
     const matchesSubCategory = !selectedSubCategory || event.genre === selectedSubCategory;
     const matchesDate = filterByDate(event);
-    return event.featured && matchesCategory && matchesSubCategory && matchesDate;
+    return matchesCategory && matchesSubCategory && matchesDate;
   });
 
-  const favoriteEvents = events.filter(event => favorites.has(event.id));
+  const favoriteEvents = activeEvents.filter(event => favorites.has(event.id));
 
-  const filteredEvents = events.filter(event => {
+  const filteredEvents = activeEvents.filter(event => {
     const matchesCategory = selectedCategory === 'Todos' || event.category === selectedCategory;
     const matchesSubCategory = !selectedSubCategory || event.genre === selectedSubCategory;
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -629,7 +676,7 @@ export default function App() {
   });
 
   const handleCardClick = (eventId: number) => {
-    const event = events.find(e => e.id === eventId);
+    const event = activeEvents.find(e => e.id === eventId);
     if (event) {
       setSelectedEvent(event);
       if (user) trackActivity(user.id, 'view', eventId, { title: event.title, category: event.category });

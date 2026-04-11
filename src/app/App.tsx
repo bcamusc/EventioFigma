@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabase';
 import { signInWithGoogle, signOut, loadFavorites, addFavorite, removeFavorite, trackActivity } from '../lib/auth';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 
-const categories = ['Todos', 'Musica', 'Stand-up', 'Teatro', 'Fiesta', 'Familia', 'Deportes', 'Cine', 'Danza', 'Gastronomia', 'Exposicion', 'Educacion'];
+const categories = ['Todos', 'Musica', 'Teatro', 'Stand-up', 'Cine'];
 const dateFilters = ['Hoy', 'Este fin de semana'];
 const searchSuggestions = ['Conciertos rock', 'Teatro clásico', 'Stand-up esta semana', 'Jazz en vivo', 'Cine independiente'];
 
@@ -120,6 +120,7 @@ export default function App() {
         const { data, error } = await supabase
           .from('events')
           .select('*, venues(name, comuna)')
+          .in('category', ['Musica', 'Teatro', 'Stand-up', 'Cine'])
           .gte('datetime', new Date().toISOString())
           .order('datetime', { ascending: true })
           .limit(50);

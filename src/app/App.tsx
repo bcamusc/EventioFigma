@@ -118,52 +118,59 @@ export default function App() {
   }, []);
 
   const formatEventDate = (event: typeof events[0]) => {
-    const dateParts = event.date.split(' ');
-    const day = parseInt(dateParts[0]);
-    const month = dateParts[1];
-    const year = dateParts[2];
-
-    const eventDate = new Date(2026, 3, day); // Abril = mes 3 (0-indexed)
-    const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sab'];
-    const dayName = dayNames[eventDate.getDay()];
-
-    return `${dayName} ${day} ${month} ${year}, ${event.time} hrs`;
+    try {
+      const dbDate = new Date(event.date);
+      if (isNaN(dbDate.getTime())) return event.date;
+      
+      const day = dbDate.getDate();
+      const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+      const month = monthNames[dbDate.getMonth()];
+      const year = dbDate.getFullYear();
+      const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sab'];
+      const dayName = dayNames[dbDate.getDay()];
+      
+      return `${dayName} ${day} ${month} ${year}, ${event.time} hrs`;
+    } catch {
+      return event.date;
+    }
   };
 
   const getEventDateTag = (event: typeof events[0]) => {
-    const today = new Date(2026, 3, 9); // 9 Abril 2026
-    const eventDate = new Date(2026, 3, parseInt(event.date.split(' ')[0]));
+    try {
+      const today = new Date();
+      const eventDate = new Date(event.date);
+      
+      if (isNaN(eventDate.getTime())) return null;
 
-    if (eventDate.getDate() === today.getDate()) {
-      return 'HOY';
+      if (eventDate.getDate() === today.getDate() && eventDate.getMonth() === today.getMonth() && eventDate.getFullYear() === today.getFullYear()) {
+        return 'HOY';
+      }
+      return null;
+    } catch {
+      return null;
     }
-
-    // Fin de semana: 12-13 Abril 2026
-    const weekend = [12, 13];
-    if (weekend.includes(eventDate.getDate())) {
-      return 'ESTE FINDE';
-    }
-
-    return null;
   };
 
   const filterByDate = (event: typeof events[0]) => {
     if (!selectedDateFilter) return true;
+    try {
+      const today = new Date();
+      const eventDate = new Date(event.date);
+      
+      if (isNaN(eventDate.getTime())) return true;
 
-    const today = new Date(2026, 3, 9); // 9 Abril 2026
-    const eventDate = new Date(2026, 3, parseInt(event.date.split(' ')[0]));
+      if (selectedDateFilter === 'Hoy') {
+        return eventDate.getDate() === today.getDate() && eventDate.getMonth() === today.getMonth() && eventDate.getFullYear() === today.getFullYear();
+      }
 
-    if (selectedDateFilter === 'Hoy') {
-      return eventDate.getDate() === today.getDate();
+      if (selectedDateFilter === 'Este fin de semana') {
+        return eventDate.getDay() === 0 || eventDate.getDay() === 6;
+      }
+
+      return true;
+    } catch {
+      return true;
     }
-
-    if (selectedDateFilter === 'Este fin de semana') {
-      // Fin de semana: 12-13 Abril 2026
-      const weekend = [12, 13];
-      return weekend.includes(eventDate.getDate());
-    }
-
-    return true;
   };
 
   const featuredEvents = events.filter(event => {

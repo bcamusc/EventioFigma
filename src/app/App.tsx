@@ -120,6 +120,7 @@ export default function App() {
         const { data, error } = await supabase
           .from('events')
           .select('*, venues(name, comuna)')
+          .gte('datetime', new Date().toISOString())
           .order('datetime', { ascending: true })
           .limit(50);
 

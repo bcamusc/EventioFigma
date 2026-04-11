@@ -62,17 +62,24 @@ export default function App() {
     async function fetchEvents() {
       try {
         const { data, error } = await supabase
-          .from('events')
+          .from('shows')
           .select('*')
-          .order('date', { ascending: true });
+          .order('season_start', { ascending: true });
 
         if (error) throw error;
         if (data) {
-          // Map DB columns to UI expectations if they differ
+          // Map DB columns to UI expectations
           const mappedEvents = data.map((e: any) => ({
-            ...e,
-            category: e.category || 'Música',
-            featured: e.featured || false
+            id: e.id,
+            title: e.name,
+            description: e.description,
+            image: e.image_url || 'https://images.unsplash.com/photo-1706419202046-e4982f00b082?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
+            date: e.season_start || 'Próximamente',
+            time: '20:00', // Default if missing
+            location: 'Teatro', // Default if missing
+            category: 'Teatro', // Dynamic mapping would go here
+            featured: true,
+            match: 90
           }));
           setEvents(mappedEvents);
         }

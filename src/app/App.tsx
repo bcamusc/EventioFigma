@@ -490,7 +490,7 @@ const events = [
 ];
 
 export default function App() {
-  const [dbEvents, setDbEvents] = useState<any[]>([]);
+  const [dbEvents, setDbEvents] = useState<any[]>(events);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
@@ -574,6 +574,7 @@ export default function App() {
         }
       } catch (err) {
         console.error('Error fetching events:', err);
+        setLoading(false);
       } finally {
         setLoading(false);
       }

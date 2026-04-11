@@ -548,8 +548,10 @@ export default function App() {
           .select('*, venues(name, comuna)')
           .order('datetime', { ascending: true });
 
+        console.log('Supabase response:', { data, error });
         if (error) throw error;
         if (data) {
+          console.log('Events from DB:', data.length);
           const mappedEvents = data.map((e: any) => {
             const dateObj = new Date(e.datetime);
             const timeStr = isNaN(dateObj.getTime()) ? '20:00' : dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });

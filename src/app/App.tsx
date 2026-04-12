@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Search, Calendar, MapPin, Heart, Sun, Moon, Home, Compass, Star, User, Share2, X, Users, Clock, CalendarPlus, ArrowLeft, Globe, Menu, LogIn, LogOut } from 'lucide-react';
+import { Search, Calendar, MapPin, Heart, Sun, Moon, Home, Compass, Star, User, Share2, X, Users, Clock, CalendarPlus, ArrowLeft, Globe, Menu, LogIn, LogOut, Brain } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import InstallPrompt from './components/InstallPrompt';
 import { supabase } from '../lib/supabase';
 import { signInWithGoogle, signOut, loadFavorites, addFavorite, removeFavorite, trackActivity } from '../lib/auth';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 import LoginScreen from './components/LoginScreen';
+import AdminUrlito from './AdminUrlito';
 
 const DEFAULT_CATEGORIES = ['Musica', 'Teatro', 'Stand-up', 'Cine'];
 const dateFilters = ['Hoy', 'Este fin de semana'];
@@ -82,6 +83,7 @@ export default function App() {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
   const [authReady, setAuthReady] = useState(false);
+  const [showAdminUrlito, setShowAdminUrlito] = useState(false);
 
   // Auth: cargar sesión inicial y escuchar cambios
   useEffect(() => {
@@ -1447,6 +1449,16 @@ export default function App() {
                     <span className={`${isLightMode ? 'text-neutral-600' : 'text-neutral-400'}`}>0</span>
                   </div>
 
+                  <div 
+                    onClick={() => { setShowProfile(false); setShowAdminUrlito(true); }}
+                    className={`cursor-pointer ${isLightMode ? 'bg-indigo-100 hover:bg-indigo-200' : 'bg-indigo-900/30 hover:bg-indigo-900/50'} rounded-2xl p-4 flex items-center justify-between border border-indigo-500/20 transition-colors`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Brain className={isLightMode ? 'text-indigo-600' : 'text-indigo-400'} size={20} />
+                      <span className={isLightMode ? 'text-indigo-900 font-medium' : 'text-indigo-100 font-medium'}>Entrenar URLito (Admin)</span>
+                    </div>
+                  </div>
+
                   <div className={`${isLightMode ? 'bg-neutral-100' : 'bg-neutral-900'} rounded-2xl p-4`}>
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
@@ -1596,6 +1608,13 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {showAdminUrlito && (
+        <AdminUrlito 
+          onClose={() => setShowAdminUrlito(false)} 
+          isLightMode={isLightMode} 
+        />
+      )}
 
       <InstallPrompt isLightMode={isLightMode} />
     </div>

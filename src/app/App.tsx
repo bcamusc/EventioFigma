@@ -64,6 +64,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [activeCategories, setActiveCategories] = useState<string[]>(['Musica', 'Teatro', 'Stand-up', 'Cine']);
   const [activeComunas, setActiveComunas] = useState<string[]>([]);
+  const [activeSubcategories, setActiveSubcategories] = useState<Record<string, string[]>>(subCategories);
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
   const [selectedDateFilter, setSelectedDateFilter] = useState<string | null>(null);
@@ -122,10 +123,11 @@ export default function App() {
       const { data } = await supabase
         .from('app_settings')
         .select('id, value')
-        .in('id', ['categories', 'comunas']);
+        .in('id', ['categories', 'subcategories', 'comunas']);
       if (data) {
         for (const row of data) {
           if (row.id === 'categories') setActiveCategories(row.value);
+          if (row.id === 'subcategories') setActiveSubcategories(row.value);
           if (row.id === 'comunas') setActiveComunas(row.value);
         }
       }
@@ -485,7 +487,7 @@ export default function App() {
                         </>
                       ) : (
                         <>
-                          {subCategories[selectedCategory]?.length > 0 ? (
+                          {activeSubcategories[selectedCategory]?.length > 0 ? (
                             selectedDateFilter ? (
                               <>
                                 <div className={`flex items-center gap-0 rounded-lg flex-shrink-0 overflow-hidden ${
@@ -518,7 +520,7 @@ export default function App() {
                                   </button>
                                 </div>
 
-                                {subCategories[selectedCategory].map((subCat) => (
+                                {activeSubcategories[selectedCategory].map((subCat) => (
                                   <button
                                     type="button"
                                     key={subCat}
@@ -548,7 +550,7 @@ export default function App() {
                                   {selectedCategory}
                                 </button>
 
-                                {subCategories[selectedCategory].map((subCat) => (
+                                {activeSubcategories[selectedCategory].map((subCat) => (
                                   <button
                                     type="button"
                                     key={subCat}
@@ -814,7 +816,7 @@ export default function App() {
                           </>
                         ) : (
                           <>
-                            {subCategories[selectedCategory]?.length > 0 ? (
+                            {activeSubcategories[selectedCategory]?.length > 0 ? (
                               selectedDateFilter ? (
                                 <>
                                   <div className={`flex items-center gap-0 rounded-lg flex-shrink-0 overflow-hidden ${
@@ -847,7 +849,7 @@ export default function App() {
                                     </button>
                                   </div>
 
-                                  {subCategories[selectedCategory].map((subCat) => (
+                                  {activeSubcategories[selectedCategory].map((subCat) => (
                                     <button
                                       type="button"
                                       key={subCat}
@@ -877,7 +879,7 @@ export default function App() {
                                     {selectedCategory}
                                   </button>
 
-                                  {subCategories[selectedCategory].map((subCat) => (
+                                  {activeSubcategories[selectedCategory].map((subCat) => (
                                     <button
                                       key={subCat}
                                       onClick={() => setSelectedSubCategory(subCat)}

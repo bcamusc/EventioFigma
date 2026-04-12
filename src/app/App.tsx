@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase';
 import { signInWithGoogle, signOut, loadFavorites, addFavorite, removeFavorite, trackActivity } from '../lib/auth';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 import LoginScreen from './components/LoginScreen';
+import { FeaturedSkeleton, EventRowSkeleton } from './components/EventSkeleton';
 import AdminUrlito from './AdminUrlito';
 
 const DEFAULT_CATEGORIES = ['Musica', 'Teatro', 'Stand-up', 'Cine'];
@@ -1034,7 +1035,9 @@ export default function App() {
               <div className="px-4 pb-3">
                 <h2 className={`text-2xl mb-3 ${isLightMode ? 'text-neutral-900' : 'text-white'}`}>Destacados</h2>
                 <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 snap-x snap-mandatory scrollbar-hide">
-                  {featuredEvents.map((event) => {
+                  {loading
+                    ? Array.from({ length: 4 }).map((_, i) => <FeaturedSkeleton key={i} isLightMode={isLightMode} />)
+                    : featuredEvents.map((event) => {
                     const isFavorite = favorites.has(event.id);
                     const colors = categoryColors[event.category] || defaultColors;
 
@@ -1112,9 +1115,12 @@ export default function App() {
             )}
 
             <div className="px-4 pt-4">
+
               <h2 className={`text-2xl mb-4 ${isLightMode ? 'text-neutral-900' : 'text-white'}`}>Todos los eventos</h2>
               <div className="space-y-3">
-                {filteredEvents.map((event) => {
+                {loading
+                  ? Array.from({ length: 6 }).map((_, i) => <EventRowSkeleton key={i} isLightMode={isLightMode} />)
+                  : filteredEvents.map((event) => {
                   const isFavorite = favorites.has(event.id);
                   const colors = categoryColors[event.category] || defaultColors;
 

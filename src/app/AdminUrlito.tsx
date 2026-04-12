@@ -12,7 +12,7 @@ export default function AdminUrlito({ onClose, isLightMode }: { onClose: () => v
       // Pedimos los 15 eventos más recientes procesados por URLito
       const { data } = await supabase
         .from('events')
-        .select('*')
+        .select('*, venues(*)')
         .eq('urlito_processed', true)
         .order('updated_at', { ascending: false })
         .limit(15);

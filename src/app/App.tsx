@@ -1449,15 +1449,17 @@ export default function App() {
                     <span className={`${isLightMode ? 'text-neutral-600' : 'text-neutral-400'}`}>0</span>
                   </div>
 
-                  <div 
-                    onClick={() => { setShowProfile(false); setShowAdminUrlito(true); }}
-                    className={`cursor-pointer ${isLightMode ? 'bg-indigo-100 hover:bg-indigo-200' : 'bg-indigo-900/30 hover:bg-indigo-900/50'} rounded-2xl p-4 flex items-center justify-between border border-indigo-500/20 transition-colors`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Brain className={isLightMode ? 'text-indigo-600' : 'text-indigo-400'} size={20} />
-                      <span className={isLightMode ? 'text-indigo-900 font-medium' : 'text-indigo-100 font-medium'}>Entrenar URLito (Admin)</span>
+                  {user?.email === 'bcamusc@gmail.com' && (
+                    <div 
+                      onClick={() => { setShowProfile(false); setShowAdminUrlito(true); }}
+                      className={`cursor-pointer ${isLightMode ? 'bg-indigo-100 hover:bg-indigo-200' : 'bg-indigo-900/30 hover:bg-indigo-900/50'} rounded-2xl p-4 flex items-center justify-between border border-indigo-500/20 transition-colors`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Brain className={isLightMode ? 'text-indigo-600' : 'text-indigo-400'} size={20} />
+                        <span className={isLightMode ? 'text-indigo-900 font-medium' : 'text-indigo-100 font-medium'}>Entrenar URLito (Admin)</span>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   <div className={`${isLightMode ? 'bg-neutral-100' : 'bg-neutral-900'} rounded-2xl p-4`}>
                     <div className="flex items-center justify-between mb-3">

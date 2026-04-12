@@ -46,7 +46,7 @@ const staticEvents = [
     id: 1,
     title: 'Cargando eventos...',
     category: 'Música',
-    genre: 'Electrónica',
+    subcategory: 'Electrónica',
     date: '...',
     time: '...',
     location: '...',
@@ -260,7 +260,7 @@ export default function App() {
 
   const featuredEvents = events.filter(event => {
     const matchesCategory = selectedCategory === 'Todos' || event.category === selectedCategory;
-    const matchesSubCategory = !selectedSubCategory || event.genre === selectedSubCategory;
+    const matchesSubCategory = !selectedSubCategory || event.subcategory === selectedSubCategory;
     const matchesDate = filterByDate(event);
     return event.featured && matchesCategory && matchesSubCategory && matchesDate;
   });
@@ -269,7 +269,7 @@ export default function App() {
 
   const filteredEvents = events.filter(event => {
     const matchesCategory = selectedCategory === 'Todos' || event.category === selectedCategory;
-    const matchesSubCategory = !selectedSubCategory || event.genre === selectedSubCategory;
+    const matchesSubCategory = !selectedSubCategory || event.subcategory === selectedSubCategory;
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          event.location.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesDate = filterByDate(event);
@@ -1038,9 +1038,9 @@ export default function App() {
                               <span className={`${colors.badge} text-white text-xs px-3 py-1 rounded-full`}>
                                 {event.category}
                               </span>
-                              {event.genre && (
+                              {event.subcategory && (
                                 <span className="bg-black/50 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full border border-white/20">
-                                  {event.genre}
+                                  {event.subcategory}
                                 </span>
                               )}
                             </div>
@@ -1152,9 +1152,9 @@ export default function App() {
                                   </button>
                                 </div>
                               </div>
-                              {event.genre && (
+                              {event.subcategory && (
                                 <span className={`text-xs ${isLightMode ? 'text-neutral-600' : 'text-neutral-400'}`}>
-                                  {event.genre}
+                                  {event.subcategory}
                                 </span>
                               )}
                             </div>
@@ -1226,9 +1226,9 @@ export default function App() {
                             <span className={`${colors.badge} text-white text-sm px-3 py-1.5 rounded-full`}>
                               {selectedEvent.category}
                             </span>
-                            {selectedEvent.genre && (
+                            {selectedEvent.subcategory && (
                               <span className="bg-black/50 backdrop-blur-sm text-white text-sm px-3 py-1.5 rounded-full border border-white/20">
-                                {selectedEvent.genre}
+                                {selectedEvent.subcategory}
                               </span>
                             )}
                             {getEventDateTag(selectedEvent) && (

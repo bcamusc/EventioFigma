@@ -163,7 +163,8 @@ export default function App() {
               time: timeStr,
               location: locationStr,
               category: e.category || 'Categoría por definir',
-              price: e.price ? `€${e.price}` : 'Gratis / No indicado', // Adjust currency as needed (usually CL$ in Chile)
+              subcategory: e.subcategory || null,
+              price: e.price ? `$${e.price}` : 'Gratis / No indicado',
               featured: true,
               match: 90
             };

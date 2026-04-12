@@ -1276,7 +1276,7 @@ export default function App() {
                         <Users size={18} className={isLightMode ? 'text-purple-600' : 'text-purple-400'} />
                         <span className={`text-xs ${isLightMode ? 'text-neutral-600' : 'text-neutral-400'}`}>Asistentes</span>
                       </div>
-                      <p className={`${isLightMode ? 'text-neutral-900' : 'text-white'}`}>{selectedEvent.attendees.toLocaleString()}</p>
+                      <p className={`${isLightMode ? 'text-neutral-900' : 'text-white'}`}>{selectedEvent.attendees?.toLocaleString() ?? '—'}</p>
                     </div>
 
                     {selectedEvent.duration && (

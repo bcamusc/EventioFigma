@@ -21,11 +21,19 @@ export default function AdminUrlito({ onClose, isLightMode }: { onClose: () => v
         setEvents(data);
         const initialInputs: any = {};
         data.forEach((e: any) => {
+          const dateStr = e.datetime ? new Date(e.datetime) : null;
           initialInputs[e.id] = {
             correction: JSON.stringify({
-              precio: e.price,
-              subcategoria: e.subcategory,
-              lugar_id: e.venue_id,
+              nombre: e.clean_title || e.title,
+              artistas: [], // Llena esto si hubo artistas ignorados
+              fecha: dateStr && !isNaN(dateStr.getTime()) ? dateStr.toISOString().split('T')[0] : "",
+              hora: dateStr && !isNaN(dateStr.getTime()) ? dateStr.toTimeString().split(' ')[0] : "",
+              lugar: e.venues?.name || "",
+              direccion: e.venues?.address || "",
+              comuna: e.venues?.comuna || "",
+              precio: e.price || 0,
+              subcategoria: e.subcategory || "",
+              descripcion: "..." // Opcional, solo corrígelo si la descripción de la IA fue muy mala
             }, null, 2),
             reasoning: ''
           };

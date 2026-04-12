@@ -75,7 +75,7 @@ export default function App() {
   const [showSearchBar, setShowSearchBar] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('Español');
-  const [selectedCity, setSelectedCity] = useState('Madrid');
+  const [selectedCity, setSelectedCity] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [user, setUser] = useState<SupabaseUser | null>(null);
@@ -164,6 +164,7 @@ export default function App() {
               location: locationStr,
               category: e.category || 'Categoría por definir',
               subcategory: e.subcategory || null,
+              comuna: e.venues?.comuna || null,
               price: e.price ? `$${e.price}` : 'Gratis / No indicado',
               featured: true,
               match: 90
@@ -261,11 +262,13 @@ export default function App() {
     }
   };
 
+  const matchesCity = (event: any) => !selectedCity || event.comuna === selectedCity;
+
   const featuredEvents = events.filter(event => {
     const matchesCategory = selectedCategory === 'Todos' || event.category === selectedCategory;
     const matchesSubCategory = !selectedSubCategory || event.subcategory === selectedSubCategory;
     const matchesDate = filterByDate(event);
-    return event.featured && matchesCategory && matchesSubCategory && matchesDate;
+    return event.featured && matchesCategory && matchesSubCategory && matchesDate && matchesCity(event);
   });
 
   const favoriteEvents = events.filter(event => favorites.has(event.id));
@@ -276,7 +279,7 @@ export default function App() {
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          event.location.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesDate = filterByDate(event);
-    return matchesCategory && matchesSubCategory && matchesSearch && matchesDate;
+    return matchesCategory && matchesSubCategory && matchesSearch && matchesDate && matchesCity(event);
   });
 
   const handleCardClick = (eventId: number) => {
@@ -1444,12 +1447,10 @@ export default function App() {
                         onChange={(e) => setSelectedCity(e.target.value)}
                         className={`px-4 py-2 rounded-lg ${isLightMode ? 'bg-white text-neutral-900' : 'bg-neutral-800 text-white'} focus:outline-none cursor-pointer`}
                       >
-                        <option>Madrid</option>
-                        <option>Barcelona</option>
-                        <option>Valencia</option>
-                        <option>Sevilla</option>
-                        <option>Bilbao</option>
-                        <option>Málaga</option>
+                        <option value="">Todas</option>
+                        {activeComunas.map(comuna => (
+                          <option key={comuna} value={comuna}>{comuna}</option>
+                        ))}
                       </select>
                     </div>
                     <div className="flex items-center justify-between">

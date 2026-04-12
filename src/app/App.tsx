@@ -5,6 +5,7 @@ import InstallPrompt from './components/InstallPrompt';
 import { supabase } from '../lib/supabase';
 import { signInWithGoogle, signOut, loadFavorites, addFavorite, removeFavorite, trackActivity } from '../lib/auth';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
+import LoginScreen from './components/LoginScreen';
 
 const DEFAULT_CATEGORIES = ['Musica', 'Teatro', 'Stand-up', 'Cine'];
 const dateFilters = ['Hoy', 'Este fin de semana'];
@@ -80,11 +81,13 @@ export default function App() {
   const [showMenu, setShowMenu] = useState(false);
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
 
   // Auth: cargar sesión inicial y escuchar cambios
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setUser(data.session?.user ?? null);
+      setAuthReady(true);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
@@ -319,6 +322,14 @@ export default function App() {
   const closeModal = () => {
     setSelectedEvent(null);
   };
+
+  // Auth guard
+  if (!authReady) return (
+    <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+  if (!user) return <LoginScreen />;
 
   return (
     <div className={`min-h-screen ${isLightMode ? 'bg-neutral-50' : 'bg-neutral-950'}`}>

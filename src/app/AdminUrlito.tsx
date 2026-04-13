@@ -31,8 +31,12 @@ export default function AdminUrlito({ onClose, isLightMode }: { onClose: () => v
               lugar: e.venues?.name || "",
               direccion: e.venues?.address || "",
               comuna: e.venues?.comuna || "",
+              url_mapa: e.venues?.maps_url || "",
               precio: e.price || 0,
+              categoria: e.category || "",
               subcategoria: e.subcategory || "",
+              tags: [],
+              url_foto: e.image_url || "",
               descripcion: "..." // Opcional, solo corrígelo si la descripción de la IA fue muy mala
             }, null, 2),
             reasoning: ''

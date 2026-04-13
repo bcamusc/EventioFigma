@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { X, Check, Brain } from 'lucide-react';
+import { X, Check, Brain, Sparkles, Send } from 'lucide-react';
 
 export default function AdminUrlito({ onClose, isLightMode }: { onClose: () => void, isLightMode: boolean }) {
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [memoryInput, setMemoryInput] = useState<{ [key: number]: { correction: string, reasoning: string } }>({});
+  const [smartInput, setSmartInput] = useState<{ [key: number]: string }>({});
+  const [loadingEvents, setLoadingEvents] = useState<{ [key: number]: boolean }>({});
 
   useEffect(() => {
     async function fetchUrlitoEvents() {
@@ -43,11 +45,42 @@ export default function AdminUrlito({ onClose, isLightMode }: { onClose: () => v
           };
         });
         setMemoryInput(initialInputs);
+        setSmartInput(data.reduce((acc: any, e: any) => ({ ...acc, [e.id]: '' }), {}));
       }
       setLoading(false);
     }
     fetchUrlitoEvents();
   }, []);
+
+  const handleSmartSubmit = async (eventId: number, originalDesc: string) => {
+    const instruction = smartInput[eventId];
+    if (!instruction?.trim()) {
+      alert("Por favor ingresa la orden para Mistral.");
+      return;
+    }
+    setLoadingEvents({ ...loadingEvents, [eventId]: true });
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/urlito/smart-feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_id: eventId,
+          original_text: originalDesc || "Sin descripción",
+          ai_output: memoryInput[eventId]?.correction || "{}", 
+          user_instruction: instruction
+        })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || "Error en el servidor");
+      
+      alert(data.message + "\n\n🧠 Regla Inyectada Automáticamente:\n" + data.reasoning);
+      setSmartInput({ ...smartInput, [eventId]: '' });
+    } catch (err: any) {
+      alert("Error en Corrección Mágica: " + err.message);
+    } finally {
+      setLoadingEvents({ ...loadingEvents, [eventId]: false });
+    }
+  };
 
   const handleSubmit = async (eventId: number, originalDesc: string) => {
     const input = memoryInput[eventId];
@@ -112,6 +145,30 @@ export default function AdminUrlito({ onClose, isLightMode }: { onClose: () => v
               </div>
 
               <div className="border-t border-neutral-800 pt-4 flex flex-col gap-3">
+                <div className="bg-teal-900/10 p-3 rounded-xl border border-teal-500/20">
+                  <label className="text-xs font-bold uppercase tracking-wider text-teal-400 mb-2 flex items-center gap-2">
+                    <Sparkles size={14}/> Dictado Mágico (IA corrige el JSON por ti):
+                  </label>
+                  <div className="flex gap-2">
+                    <textarea 
+                      className={`flex-1 ${isLightMode ? 'bg-white' : 'bg-neutral-950'} border border-teal-800/50 rounded-lg p-3 text-sm h-16 focus:ring-1 focus:ring-teal-500 outline-none`}
+                      placeholder="Dicta aquí. Ej: 'Pon el precio a 5000 y el artista es Coco Legrand'"
+                      value={smartInput[ev.id] || ''}
+                      onChange={(e) => setSmartInput({ ...smartInput, [ev.id]: e.target.value })}
+                    />
+                    <button 
+                      onClick={() => handleSmartSubmit(ev.id, ev.description)}
+                      disabled={loadingEvents[ev.id]}
+                      className="bg-teal-600 hover:bg-teal-500 text-white font-bold px-4 rounded-xl transition-transform active:scale-95 disabled:opacity-50 flex items-center justify-center flex-col gap-1"
+                      title="Enviar orden a Mistral"
+                    >
+                      {loadingEvents[ev.id] ? <span className="animate-spin text-xl">💫</span> : <Send size={20} />}
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="text-center my-1 text-[10px] uppercase font-bold tracking-widest text-neutral-500">--- Ó Edición Manual de JSON ---</div>
+
                 <div>
                   <label className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-1 block">1. Corrige el Dato (Opcional):</label>
                   <textarea 

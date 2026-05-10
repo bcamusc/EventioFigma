@@ -40,9 +40,10 @@ export default function Admin() {
 
   // Auth check
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setUser(data.session?.user ?? null);
-    });
+    supabase.auth.getSession().then(({ data, error }) => {
+      if (error) console.error("Admin session error:", error);
+      setUser(data?.session?.user ?? null);
+    }).catch(err => console.error("Admin critical auth error:", err));
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
       setUser(session?.user ?? null);
     });

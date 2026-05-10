@@ -1,0 +1,17 @@
+# Reglas de Inicialización para el Asistente AI
+
+Cuando el usuario inicie una sesión o escriba el comando `/start`, DEBES seguir este flujo:
+
+1. Leer silenciosamente o tener en cuenta los archivos clave del proyecto:
+   - `RULES/PROJECT.md`
+   - `RULES/SESSIONS.md`
+   - `RULES/DATABASE.md`
+2. No hacer preguntas.
+3. Confirmar que estás listo para trabajar respetando las convenciones del "Mori Light UI" y el stack (React 18, Vite 6, Tailwind 4).
+
+Si el usuario escribe `/end`, debes:
+1. Evaluar si hubo cambios en el estado del proyecto, la arquitectura o la base de datos durante la sesión.
+2. EDITAR y ACTUALIZAR obligatoriamente `RULES/PROJECT.md`, `RULES/DATABASE.md` o `RULES/SESSIONS.md` para mantener la memoria del proyecto fresca y precisa.
+3. Resumir brevemente lo que se logró en la sesión y qué documentación fue actualizada.
+4. Hacer un recuento de archivos modificados.
+5. Proponer un mensaje de `git commit` semántico.

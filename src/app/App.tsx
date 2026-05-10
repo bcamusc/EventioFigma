@@ -88,8 +88,12 @@ export default function App() {
 
   // Auth: cargar sesión inicial y escuchar cambios
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setUser(data.session?.user ?? null);
+    supabase.auth.getSession().then(({ data, error }) => {
+      if (error) console.error("Session error:", error);
+      setUser(data?.session?.user ?? null);
+      setAuthReady(true);
+    }).catch((err) => {
+      console.error("Critical Auth Error:", err);
       setAuthReady(true);
     });
 

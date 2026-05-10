@@ -437,10 +437,10 @@ export default function App() {
                   <button
                     key={df}
                     onClick={() => setSelectedDateFilter(selectedDateFilter === df ? null : df)}
-                    className={`px-4 py-1.5 rounded-full flex-shrink-0 transition-all text-xs border ${
+                    className={`px-5 py-2 rounded-lg flex-shrink-0 transition-all text-sm font-medium ${
                       selectedDateFilter === df
-                        ? (isLightMode ? 'bg-neutral-900 text-white border-neutral-900' : 'bg-white text-neutral-900 border-white')
-                        : (isLightMode ? 'bg-transparent text-neutral-600 border-neutral-200 hover:bg-neutral-100' : 'bg-transparent text-neutral-400 border-neutral-800 hover:bg-neutral-800')
+                        ? (isLightMode ? 'bg-neutral-900 text-white' : 'bg-white text-neutral-900')
+                        : (isLightMode ? 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200' : 'bg-neutral-900 text-neutral-400 hover:bg-neutral-800')
                     }`}
                   >
                     {df}
@@ -455,10 +455,10 @@ export default function App() {
                   <button
                     key={sub}
                     onClick={() => setSelectedSubCategory(selectedSubCategory === sub ? null : sub)}
-                    className={`px-4 py-1.5 rounded-full flex-shrink-0 transition-all text-xs border ${
+                    className={`px-5 py-2 rounded-lg flex-shrink-0 transition-all text-sm font-medium ${
                       selectedSubCategory === sub
-                        ? (isLightMode ? 'bg-neutral-900 text-white border-neutral-900' : 'bg-white text-neutral-900 border-white')
-                        : (isLightMode ? 'bg-transparent text-neutral-600 border-neutral-200 hover:bg-neutral-100' : 'bg-transparent text-neutral-400 border-neutral-800 hover:bg-neutral-800')
+                        ? (isLightMode ? 'bg-neutral-900 text-white' : 'bg-white text-neutral-900')
+                        : (isLightMode ? 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200' : 'bg-neutral-900 text-neutral-400 hover:bg-neutral-800')
                     }`}
                   >
                     {sub}

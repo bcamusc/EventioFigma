@@ -344,639 +344,95 @@ export default function App() {
         <div>
           {!showSearchBar ? (
             <>
-              {isScrolled ? (
-                <div className="px-4 py-2 flex items-center gap-2">
+              <div className={`px-4 flex items-center justify-between ${isScrolled ? 'py-2' : 'py-3'}`}>
+                <div className="flex items-center gap-2">
                   <button
                     onClick={() => setShowMenu(true)}
                     className={`p-1.5 rounded-full ${isLightMode ? 'hover:bg-neutral-200' : 'hover:bg-neutral-800'} transition-colors flex-shrink-0`}
                   >
-                    <Menu size={18} className={isLightMode ? 'text-neutral-900' : 'text-white'} />
+                    <Menu size={isScrolled ? 18 : 22} className={isLightMode ? 'text-neutral-900' : 'text-white'} />
                   </button>
-                  <h1 className={`text-base tracking-tight flex-shrink-0 ${isLightMode ? 'text-neutral-900' : 'text-white'}`}>
+                  <h1 className={`${isScrolled ? 'text-base' : 'text-xl'} tracking-tight flex-shrink-0 ${isLightMode ? 'text-neutral-900' : 'text-white'}`}>
                     Eventos
                   </h1>
-                  <div className="flex gap-2 overflow-x-auto flex-1 scrollbar-hide order-2 md:order-1">
-                  {selectedCategory === 'Todos' ? (
-                    <>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setSelectedCategory('Todos');
-                        }}
-                        className={`px-5 py-2 rounded-lg flex-shrink-0 transition-all text-sm ${
-                          isLightMode
-                            ? 'bg-neutral-900 text-white'
-                            : 'bg-white text-neutral-900'
-                        }`}
-                      >
-                        All
-                      </button>
-
-                      {activeCategories.map((category) => (
-                        <button
-                          type="button"
-                          key={category}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setSelectedCategory(category);
-                            setSelectedSubCategory(null);
-                          }}
-                          className={`px-5 py-2 rounded-lg flex-shrink-0 transition-all text-sm ${
-                            isLightMode
-                              ? 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                              : 'bg-neutral-900 text-neutral-400 hover:bg-neutral-800'
-                          }`}
-                        >
-                          {category}
-                        </button>
-                      ))}
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setSelectedCategory('Todos');
-                          setSelectedSubCategory(null);
-                          setSelectedDateFilter(null);
-                        }}
-                        className={`flex items-center justify-center p-2 rounded-lg flex-shrink-0 transition-all ${
-                          isLightMode
-                            ? 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                            : 'bg-neutral-900 text-neutral-400 hover:bg-neutral-800'
-                        }`}
-                      >
-                        <X size={20} />
-                      </button>
-
-                      {selectedSubCategory ? (
-                        <>
-                          {selectedDateFilter ? (
-                            <div className={`flex items-center gap-0 rounded-lg flex-shrink-0 overflow-hidden ${
-                              isLightMode ? 'bg-neutral-900' : 'bg-white'
-                            }`}>
-                              <button
-                                onClick={() => {
-                                  setSelectedSubCategory(null);
-                                  setSelectedDateFilter(null);
-                                }}
-                                className={`px-5 py-2 text-sm ${
-                                  isLightMode ? 'text-white' : 'text-neutral-900'
-                                }`}
-                              >
-                                {selectedCategory}
-                              </button>
-                              <div className={`w-px h-4 ${isLightMode ? 'bg-neutral-700' : 'bg-neutral-300'}`} />
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  setSelectedSubCategory(null);
-                                }}
-                                className={`px-5 py-2 text-sm ${
-                                  isLightMode ? 'text-white' : 'text-neutral-900'
-                                }`}
-                              >
-                                {selectedSubCategory}
-                              </button>
-                              <div className={`w-px h-4 ${isLightMode ? 'bg-neutral-700' : 'bg-neutral-300'}`} />
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  setSelectedDateFilter(null);
-                                }}
-                                className={`px-5 py-2 text-sm ${
-                                  isLightMode ? 'text-white' : 'text-neutral-900'
-                                }`}
-                              >
-                                {selectedDateFilter}
-                              </button>
-                            </div>
-                          ) : (
-                            <>
-                              <div className={`flex items-center gap-0 rounded-lg flex-shrink-0 overflow-hidden ${
-                                isLightMode ? 'bg-neutral-900' : 'bg-white'
-                              }`}>
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    setSelectedSubCategory(null);
-                                  }}
-                                  className={`px-5 py-2 text-sm ${
-                                    isLightMode ? 'text-white' : 'text-neutral-900'
-                                  }`}
-                                >
-                                  {selectedCategory}
-                                </button>
-                                <div className={`w-px h-4 ${isLightMode ? 'bg-neutral-700' : 'bg-neutral-300'}`} />
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    setSelectedSubCategory(null);
-                                  }}
-                                  className={`px-5 py-2 text-sm ${
-                                    isLightMode ? 'text-white' : 'text-neutral-900'
-                                  }`}
-                                >
-                                  {selectedSubCategory}
-                                </button>
-                              </div>
-
-                              {dateFilters.map((dateFilter) => (
-                                <button
-                                  type="button"
-                                  key={dateFilter}
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    setSelectedDateFilter(dateFilter);
-                                  }}
-                                  className={`px-5 py-2 rounded-lg flex-shrink-0 transition-all text-sm ${
-                                    isLightMode
-                                      ? 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                                      : 'bg-neutral-900 text-neutral-400 hover:bg-neutral-800'
-                                  }`}
-                                >
-                                  {dateFilter}
-                                </button>
-                              ))}
-                            </>
-                          )}
-                        </>
-                      ) : (
-                        <>
-                          {activeSubcategories[selectedCategory]?.length > 0 ? (
-                            selectedDateFilter ? (
-                              <>
-                                <div className={`flex items-center gap-0 rounded-lg flex-shrink-0 overflow-hidden ${
-                                  isLightMode ? 'bg-neutral-900' : 'bg-white'
-                                }`}>
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      setSelectedDateFilter(null);
-                                    }}
-                                    className={`px-5 py-2 text-sm ${
-                                      isLightMode ? 'text-white' : 'text-neutral-900'
-                                    }`}
-                                  >
-                                    {selectedCategory}
-                                  </button>
-                                  <div className={`w-px h-4 ${isLightMode ? 'bg-neutral-700' : 'bg-neutral-300'}`} />
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      setSelectedDateFilter(null);
-                                    }}
-                                    className={`px-5 py-2 text-sm ${
-                                      isLightMode ? 'text-white' : 'text-neutral-900'
-                                    }`}
-                                  >
-                                    {selectedDateFilter}
-                                  </button>
-                                </div>
-
-                                {activeSubcategories[selectedCategory].map((subCat) => (
-                                  <button
-                                    type="button"
-                                    key={subCat}
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      setSelectedSubCategory(subCat);
-                                    }}
-                                    className={`px-5 py-2 rounded-lg flex-shrink-0 transition-all text-sm ${
-                                      isLightMode
-                                        ? 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                                        : 'bg-neutral-900 text-neutral-400 hover:bg-neutral-800'
-                                    }`}
-                                  >
-                                    {subCat}
-                                  </button>
-                                ))}
-                              </>
-                            ) : (
-                              <>
-                                <button
-                                  className={`px-5 py-2 rounded-lg flex-shrink-0 transition-all text-sm ${
-                                    isLightMode
-                                      ? 'bg-neutral-900 text-white'
-                                      : 'bg-white text-neutral-900'
-                                  }`}
-                                >
-                                  {selectedCategory}
-                                </button>
-
-                                {activeSubcategories[selectedCategory].map((subCat) => (
-                                  <button
-                                    type="button"
-                                    key={subCat}
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      setSelectedSubCategory(subCat);
-                                    }}
-                                    className={`px-5 py-2 rounded-lg flex-shrink-0 transition-all text-sm ${
-                                      isLightMode
-                                        ? 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                                        : 'bg-neutral-900 text-neutral-400 hover:bg-neutral-800'
-                                    }`}
-                                  >
-                                    {subCat}
-                                  </button>
-                                ))}
-                              </>
-                            )
-                          ) : selectedDateFilter ? (
-                            <div className={`flex items-center gap-0 rounded-lg flex-shrink-0 overflow-hidden ${
-                              isLightMode ? 'bg-neutral-900' : 'bg-white'
-                            }`}>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  setSelectedDateFilter(null);
-                                }}
-                                className={`px-5 py-2 text-sm ${
-                                  isLightMode ? 'text-white' : 'text-neutral-900'
-                                }`}
-                              >
-                                {selectedCategory}
-                              </button>
-                              <div className={`w-px h-4 ${isLightMode ? 'bg-neutral-700' : 'bg-neutral-300'}`} />
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  setSelectedDateFilter(null);
-                                }}
-                                className={`px-5 py-2 text-sm ${
-                                  isLightMode ? 'text-white' : 'text-neutral-900'
-                                }`}
-                              >
-                                {selectedDateFilter}
-                              </button>
-                            </div>
-                          ) : (
-                            <>
-                              <button
-                                className={`px-5 py-2 rounded-lg flex-shrink-0 transition-all text-sm ${
-                                  isLightMode
-                                    ? 'bg-neutral-900 text-white'
-                                    : 'bg-white text-neutral-900'
-                                }`}
-                              >
-                                {selectedCategory}
-                              </button>
-
-                              {dateFilters.map((dateFilter) => (
-                                <button
-                                  type="button"
-                                  key={dateFilter}
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    setSelectedDateFilter(dateFilter);
-                                  }}
-                                  className={`px-5 py-2 rounded-lg flex-shrink-0 transition-all text-sm ${
-                                    isLightMode
-                                      ? 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                                      : 'bg-neutral-900 text-neutral-400 hover:bg-neutral-800'
-                                  }`}
-                                >
-                                  {dateFilter}
-                                </button>
-                              ))}
-                            </>
-                          )}
-                        </>
-                      )}
-                    </>
-                  )}
-                  </div>
-                  <div className="flex items-center gap-1 flex-shrink-0 order-1 md:order-2">
-                    <button
-                      onClick={() => setShowSearchBar(true)}
-                      className={`p-1.5 rounded-full ${isLightMode ? 'hover:bg-neutral-200' : 'hover:bg-neutral-800'} transition-colors`}
-                    >
-                      <Search size={18} className={isLightMode ? 'text-neutral-900' : 'text-white'} />
-                    </button>
-                  </div>
                 </div>
-              ) : (
-                <>
-                  <div className="px-4 py-3 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setShowMenu(true)}
-                        className={`p-2 rounded-full ${isLightMode ? 'hover:bg-neutral-200' : 'hover:bg-neutral-800'} transition-colors`}
-                      >
-                        <Menu size={22} className={isLightMode ? 'text-neutral-900' : 'text-white'} />
-                      </button>
-                      <h1 className={`text-xl tracking-tight ${isLightMode ? 'text-neutral-900' : 'text-white'}`}>
-                        Eventos
-                      </h1>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setShowSearchBar(true)}
-                        className={`p-2 rounded-full ${isLightMode ? 'hover:bg-neutral-200' : 'hover:bg-neutral-800'} transition-colors`}
-                      >
-                        <Search size={22} className={isLightMode ? 'text-neutral-900' : 'text-white'} />
-                      </button>
-                    </div>
-                  </div>
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <button
+                    onClick={() => setShowSearchBar(true)}
+                    className={`p-1.5 rounded-full ${isLightMode ? 'hover:bg-neutral-200' : 'hover:bg-neutral-800'} transition-colors`}
+                  >
+                    <Search size={isScrolled ? 18 : 22} className={isLightMode ? 'text-neutral-900' : 'text-white'} />
+                  </button>
+                </div>
+              </div>
 
-                  <div className="flex gap-2 overflow-x-auto px-4 pb-3 scrollbar-hide">
-                    {selectedCategory === 'Todos' ? (
-                      <>
-                        <button
-                          onClick={() => setSelectedCategory('Todos')}
-                          className={`px-5 py-2 rounded-lg flex-shrink-0 transition-all text-sm ${
-                            isLightMode
-                              ? 'bg-neutral-900 text-white'
-                              : 'bg-white text-neutral-900'
-                          }`}
-                        >
-                          All
-                        </button>
+              {/* Nivel 1: Categorias principales siempre visibles */}
+              <div className="flex gap-2 overflow-x-auto px-4 pb-2 scrollbar-hide">
+                <button
+                  onClick={() => {
+                    setSelectedCategory('Todos');
+                    setSelectedSubCategory(null);
+                  }}
+                  className={`px-5 py-2 rounded-lg flex-shrink-0 transition-all text-sm font-medium ${
+                    selectedCategory === 'Todos'
+                      ? (isLightMode ? 'bg-neutral-900 text-white' : 'bg-white text-neutral-900')
+                      : (isLightMode ? 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200' : 'bg-neutral-900 text-neutral-400 hover:bg-neutral-800')
+                  }`}
+                >
+                  Todos
+                </button>
+                {activeCategories.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => {
+                      setSelectedCategory(cat);
+                      setSelectedSubCategory(null);
+                    }}
+                    className={`px-5 py-2 rounded-lg flex-shrink-0 transition-all text-sm font-medium ${
+                      selectedCategory === cat
+                        ? (isLightMode ? 'bg-neutral-900 text-white' : 'bg-white text-neutral-900')
+                        : (isLightMode ? 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200' : 'bg-neutral-900 text-neutral-400 hover:bg-neutral-800')
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
 
-                        {activeCategories.map((category) => (
-                          <button
-                            key={category}
-                            onClick={() => {
-                              setSelectedCategory(category);
-                              setSelectedSubCategory(null);
-                            }}
-                            className={`px-5 py-2 rounded-lg flex-shrink-0 transition-all text-sm ${
-                              isLightMode
-                                ? 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                                : 'bg-neutral-900 text-neutral-400 hover:bg-neutral-800'
-                            }`}
-                          >
-                            {category}
-                          </button>
-                        ))}
-                      </>
-                    ) : (
-                      <>
-                        <button
-                          onClick={() => {
-                            setSelectedCategory('Todos');
-                            setSelectedSubCategory(null);
-                            setSelectedDateFilter(null);
-                          }}
-                          className={`flex items-center justify-center p-2 rounded-lg flex-shrink-0 transition-all ${
-                            isLightMode
-                              ? 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                              : 'bg-neutral-900 text-neutral-400 hover:bg-neutral-800'
-                          }`}
-                        >
-                          <X size={20} />
-                        </button>
+              {/* Nivel 2: Filtros adicionales (Fechas y Subfamilias) */}
+              <div className="flex gap-2 overflow-x-auto px-4 pb-3 scrollbar-hide items-center">
+                {dateFilters.map(df => (
+                  <button
+                    key={df}
+                    onClick={() => setSelectedDateFilter(selectedDateFilter === df ? null : df)}
+                    className={`px-4 py-1.5 rounded-full flex-shrink-0 transition-all text-xs border ${
+                      selectedDateFilter === df
+                        ? (isLightMode ? 'bg-neutral-900 text-white border-neutral-900' : 'bg-white text-neutral-900 border-white')
+                        : (isLightMode ? 'bg-transparent text-neutral-600 border-neutral-200 hover:bg-neutral-100' : 'bg-transparent text-neutral-400 border-neutral-800 hover:bg-neutral-800')
+                    }`}
+                  >
+                    {df}
+                  </button>
+                ))}
 
-                        {selectedSubCategory ? (
-                          <>
-                            {selectedDateFilter ? (
-                              <div className={`flex items-center gap-0 rounded-lg flex-shrink-0 overflow-hidden ${
-                                isLightMode ? 'bg-neutral-900' : 'bg-white'
-                              }`}>
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    setSelectedSubCategory(null);
-                                    setSelectedDateFilter(null);
-                                  }}
-                                  className={`px-5 py-2 text-sm ${
-                                    isLightMode ? 'text-white' : 'text-neutral-900'
-                                  }`}
-                                >
-                                  {selectedCategory}
-                                </button>
-                                <div className={`w-px h-4 ${isLightMode ? 'bg-neutral-700' : 'bg-neutral-300'}`} />
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    setSelectedSubCategory(null);
-                                  }}
-                                  className={`px-5 py-2 text-sm ${
-                                    isLightMode ? 'text-white' : 'text-neutral-900'
-                                  }`}
-                                >
-                                  {selectedSubCategory}
-                                </button>
-                                <div className={`w-px h-4 ${isLightMode ? 'bg-neutral-700' : 'bg-neutral-300'}`} />
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    setSelectedDateFilter(null);
-                                  }}
-                                  className={`px-5 py-2 text-sm ${
-                                    isLightMode ? 'text-white' : 'text-neutral-900'
-                                  }`}
-                                >
-                                  {selectedDateFilter}
-                                </button>
-                              </div>
-                            ) : (
-                              <>
-                                <div className={`flex items-center gap-0 rounded-lg flex-shrink-0 overflow-hidden ${
-                                  isLightMode ? 'bg-neutral-900' : 'bg-white'
-                                }`}>
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      setSelectedSubCategory(null);
-                                    }}
-                                    className={`px-5 py-2 text-sm ${
-                                      isLightMode ? 'text-white' : 'text-neutral-900'
-                                    }`}
-                                  >
-                                    {selectedCategory}
-                                  </button>
-                                  <div className={`w-px h-4 ${isLightMode ? 'bg-neutral-700' : 'bg-neutral-300'}`} />
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      setSelectedSubCategory(null);
-                                    }}
-                                    className={`px-5 py-2 text-sm ${
-                                      isLightMode ? 'text-white' : 'text-neutral-900'
-                                    }`}
-                                  >
-                                    {selectedSubCategory}
-                                  </button>
-                                </div>
+                {selectedCategory !== 'Todos' && activeSubcategories[selectedCategory]?.length > 0 && (
+                  <div className={`w-px h-5 mx-1 flex-shrink-0 ${isLightMode ? 'bg-neutral-200' : 'bg-neutral-800'}`} />
+                )}
 
-                                {dateFilters.map((dateFilter) => (
-                                  <button
-                                    type="button"
-                                    key={dateFilter}
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      setSelectedDateFilter(dateFilter);
-                                    }}
-                                    className={`px-5 py-2 rounded-lg flex-shrink-0 transition-all text-sm ${
-                                      isLightMode
-                                        ? 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                                        : 'bg-neutral-900 text-neutral-400 hover:bg-neutral-800'
-                                    }`}
-                                  >
-                                    {dateFilter}
-                                  </button>
-                                ))}
-                              </>
-                            )}
-                          </>
-                        ) : (
-                          <>
-                            {activeSubcategories[selectedCategory]?.length > 0 ? (
-                              selectedDateFilter ? (
-                                <>
-                                  <div className={`flex items-center gap-0 rounded-lg flex-shrink-0 overflow-hidden ${
-                                    isLightMode ? 'bg-neutral-900' : 'bg-white'
-                                  }`}>
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        setSelectedDateFilter(null);
-                                      }}
-                                      className={`px-5 py-2 text-sm ${
-                                        isLightMode ? 'text-white' : 'text-neutral-900'
-                                      }`}
-                                    >
-                                      {selectedCategory}
-                                    </button>
-                                    <div className={`w-px h-4 ${isLightMode ? 'bg-neutral-700' : 'bg-neutral-300'}`} />
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        setSelectedDateFilter(null);
-                                      }}
-                                      className={`px-5 py-2 text-sm ${
-                                        isLightMode ? 'text-white' : 'text-neutral-900'
-                                      }`}
-                                    >
-                                      {selectedDateFilter}
-                                    </button>
-                                  </div>
-
-                                  {activeSubcategories[selectedCategory].map((subCat) => (
-                                    <button
-                                      type="button"
-                                      key={subCat}
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        setSelectedSubCategory(subCat);
-                                      }}
-                                      className={`px-5 py-2 rounded-lg flex-shrink-0 transition-all text-sm ${
-                                        isLightMode
-                                          ? 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                                          : 'bg-neutral-900 text-neutral-400 hover:bg-neutral-800'
-                                      }`}
-                                    >
-                                      {subCat}
-                                    </button>
-                                  ))}
-                                </>
-                              ) : (
-                                <>
-                                  <button
-                                    className={`px-5 py-2 rounded-lg flex-shrink-0 transition-all text-sm ${
-                                      isLightMode
-                                        ? 'bg-neutral-900 text-white'
-                                        : 'bg-white text-neutral-900'
-                                    }`}
-                                  >
-                                    {selectedCategory}
-                                  </button>
-
-                                  {activeSubcategories[selectedCategory].map((subCat) => (
-                                    <button
-                                      key={subCat}
-                                      onClick={() => setSelectedSubCategory(subCat)}
-                                      className={`px-5 py-2 rounded-lg flex-shrink-0 transition-all text-sm ${
-                                        isLightMode
-                                          ? 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                                          : 'bg-neutral-900 text-neutral-400 hover:bg-neutral-800'
-                                      }`}
-                                    >
-                                      {subCat}
-                                    </button>
-                                  ))}
-                                </>
-                              )
-                            ) : selectedDateFilter ? (
-                              <div className={`flex items-center gap-0 rounded-lg flex-shrink-0 overflow-hidden ${
-                                isLightMode ? 'bg-neutral-900' : 'bg-white'
-                              }`}>
-                                <button
-                                  onClick={() => setSelectedDateFilter(null)}
-                                  className={`px-5 py-2 text-sm ${
-                                    isLightMode ? 'text-white' : 'text-neutral-900'
-                                  }`}
-                                >
-                                  {selectedCategory}
-                                </button>
-                                <div className={`w-px h-4 ${isLightMode ? 'bg-neutral-700' : 'bg-neutral-300'}`} />
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    setSelectedDateFilter(null);
-                                  }}
-                                  className={`px-5 py-2 text-sm ${
-                                    isLightMode ? 'text-white' : 'text-neutral-900'
-                                  }`}
-                                >
-                                  {selectedDateFilter}
-                                </button>
-                              </div>
-                            ) : (
-                              <>
-                                <button
-                                  className={`px-5 py-2 rounded-lg flex-shrink-0 transition-all text-sm ${
-                                    isLightMode
-                                      ? 'bg-neutral-900 text-white'
-                                      : 'bg-white text-neutral-900'
-                                  }`}
-                                >
-                                  {selectedCategory}
-                                </button>
-
-                                {dateFilters.map((dateFilter) => (
-                                  <button
-                                    key={dateFilter}
-                                    onClick={() => setSelectedDateFilter(dateFilter)}
-                                    className={`px-5 py-2 rounded-lg flex-shrink-0 transition-all text-sm ${
-                                      isLightMode
-                                        ? 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                                        : 'bg-neutral-900 text-neutral-400 hover:bg-neutral-800'
-                                    }`}
-                                  >
-                                    {dateFilter}
-                                  </button>
-                                ))}
-                              </>
-                            )}
-                          </>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </>
-              )}
-            </>
+                {selectedCategory !== 'Todos' && activeSubcategories[selectedCategory]?.map(sub => (
+                  <button
+                    key={sub}
+                    onClick={() => setSelectedSubCategory(selectedSubCategory === sub ? null : sub)}
+                    className={`px-4 py-1.5 rounded-full flex-shrink-0 transition-all text-xs border ${
+                      selectedSubCategory === sub
+                        ? (isLightMode ? 'bg-neutral-900 text-white border-neutral-900' : 'bg-white text-neutral-900 border-white')
+                        : (isLightMode ? 'bg-transparent text-neutral-600 border-neutral-200 hover:bg-neutral-100' : 'bg-transparent text-neutral-400 border-neutral-800 hover:bg-neutral-800')
+                    }`}
+                  >
+                    {sub}
+                  </button>
+                ))}
+              </div>\n            </>
           ) : (
               <div>
                 <div className="px-4 py-3 flex items-center gap-3">

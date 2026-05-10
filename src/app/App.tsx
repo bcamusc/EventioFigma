@@ -88,27 +88,59 @@ export default function App() {
 
   // Auth: cargar sesión inicial y escuchar cambios
   useEffect(() => {
-    supabase.auth.getSession().then(({ data, error }) => {
-      if (error) console.error("Session error:", error);
-      setUser(data?.session?.user ?? null);
-      setAuthReady(true);
-    }).catch((err) => {
-      console.error("Critical Auth Error:", err);
-      setAuthReady(true);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-      if (currentUser) {
-        const savedFavorites = await loadFavorites(currentUser.id);
-        setFavorites(savedFavorites);
-      } else {
-        setFavorites(new Set());
+    let isMounted = true;
+    
+    // Fallback de seguridad extrema: Si supabase se congela por bloqueo de cookies,
+    // forzamos el desbloqueo de la pantalla de carga tras 2 segundos.
+    const fallbackTimer = setTimeout(() => {
+      if (isMounted) {
+        console.warn("Supabase auth timeout triggered. Check cookie blockers.");
+        setAuthReady(true);
       }
-    });
+    }, 2000);
 
-    return () => subscription.unsubscribe();
+    let subscription: any = null;
+
+    try {
+      supabase.auth.getSession().then(({ data, error }) => {
+        if (error) console.error("Session error:", error);
+        if (isMounted) {
+          setUser(data?.session?.user ?? null);
+          setAuthReady(true);
+          clearTimeout(fallbackTimer);
+        }
+      }).catch((err) => {
+        console.error("Critical Auth Error:", err);
+        if (isMounted) {
+          setAuthReady(true);
+          clearTimeout(fallbackTimer);
+        }
+      });
+
+      const { data } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        const currentUser = session?.user ?? null;
+        if (isMounted) setUser(currentUser);
+        if (currentUser) {
+          const savedFavorites = await loadFavorites(currentUser.id);
+          if (isMounted) setFavorites(savedFavorites);
+        } else {
+          if (isMounted) setFavorites(new Set());
+        }
+      });
+      subscription = data.subscription;
+    } catch (err) {
+      console.error("Sync Auth Error (Storage access blocked?):", err);
+      if (isMounted) {
+        setAuthReady(true);
+        clearTimeout(fallbackTimer);
+      }
+    }
+
+    return () => {
+      isMounted = false;
+      clearTimeout(fallbackTimer);
+      if (subscription) subscription.unsubscribe();
+    };
   }, []);
 
   const handleSignIn = async () => {

@@ -366,6 +366,13 @@ export default function App() {
     setSelectedEvent(null);
   };
 
+  if (!authReady) return (
+    <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+  if (!user) return <LoginScreen />;
+
   return (
     <div className={`min-h-screen ${isLightMode ? 'bg-neutral-50' : 'bg-neutral-950'}`}>
       <header className={`fixed top-0 w-full z-50 ${isLightMode ? 'bg-white/95' : 'bg-neutral-950/95'} backdrop-blur-xl border-b ${isLightMode ? 'border-neutral-200' : 'border-neutral-800'} transition-all ${isScrolled ? 'py-2' : ''}`}>

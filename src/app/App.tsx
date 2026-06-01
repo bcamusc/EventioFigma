@@ -179,6 +179,7 @@ export default function App() {
 
   useEffect(() => {
     async function fetchEvents() {
+      setLoading(true);
       try {
         const { data, error } = await supabase
           .from('events')
@@ -222,7 +223,7 @@ export default function App() {
     }
 
     fetchEvents();
-  }, []);
+  }, [activeCategories]);
 
   useEffect(() => {
     // Set theme-color meta tag

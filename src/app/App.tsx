@@ -215,12 +215,17 @@ export default function App() {
         }
       } catch (err) {
         console.error('Error fetching events:', err);
+        setEvents([]);
       } finally {
         setLoading(false);
+        clearTimeout(safetyTimer);
       }
     }
 
+    const safetyTimer = setTimeout(() => setLoading(false), 8000);
     fetchEvents();
+
+    return () => clearTimeout(safetyTimer);
   }, []);
 
   useEffect(() => {
@@ -360,13 +365,6 @@ export default function App() {
   const closeModal = () => {
     setSelectedEvent(null);
   };
-
-  // Auth guard — only block for login screen, never block event loading
-  if (!authReady) return (
-    <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
 
   return (
     <div className={`min-h-screen ${isLightMode ? 'bg-neutral-50' : 'bg-neutral-950'}`}>

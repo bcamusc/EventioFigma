@@ -12,12 +12,17 @@
       <div id="root"></div>
       <script type="module" src="/src/main.tsx"></script>
       <script>
-        // FORZAR ELIMINACIÓN DE CAUSA RAÍZ (SERVICE WORKER ATASCADO)
+        // Kill service workers + clear all caches
         if ('serviceWorker' in navigator) {
           navigator.serviceWorker.getRegistrations().then(function(registrations) {
             for(let registration of registrations) {
               registration.unregister();
             }
+          });
+        }
+        if ('caches' in window) {
+          caches.keys().then(function(names) {
+            for (let name of names) caches.delete(name);
           });
         }
       </script>

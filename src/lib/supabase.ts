@@ -7,20 +7,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Supabase URL or Anon Key is missing. Check your .env file or Railway variables.');
 }
 
-// Bypass navigator.locks which Scrapfly/ad blockers break
-if (typeof globalThis.navigator !== 'undefined' && globalThis.navigator.locks) {
-  const originalRequest = globalThis.navigator.locks.request.bind(globalThis.navigator.locks);
-  globalThis.navigator.locks.request = async (name: string, optionsOrCb: any, maybeCb?: any) => {
-    const cb = maybeCb || optionsOrCb;
-    if (typeof cb === 'function') {
-      try {
-        return await originalRequest(name, optionsOrCb, maybeCb);
-      } catch {
-        return await cb({ name, mode: 'exclusive' });
-      }
-    }
-    return await originalRequest(name, optionsOrCb, maybeCb);
-  };
+// Remove navigator.locks so Supabase uses its internal fallback
+// (Scrapfly extension corrupts navigator.locks, breaking all queries)
+if (typeof globalThis.navigator !== 'undefined') {
+  (globalThis.navigator as any).locks = undefined;
 }
 
 export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');

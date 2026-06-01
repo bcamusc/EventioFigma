@@ -181,14 +181,9 @@ export default function App() {
     async function fetchEvents() {
       setLoading(true);
       try {
-        // Build OR filter to match categories loosely (handles inconsistent scraper data)
-        const cats = activeCategories.length > 0 ? activeCategories : ['Musica', 'Teatro', 'Stand-up', 'Cine'];
-        const likeFilters = cats.map(c => `category.ilike.%${c}%`).join(',');
-
         const { data, error } = await supabase
           .from('events')
           .select('*, venues(name, comuna)')
-          .or(likeFilters)
           .gte('datetime', new Date().toISOString())
           .order('datetime', { ascending: true })
           .limit(50);
@@ -227,7 +222,7 @@ export default function App() {
     }
 
     fetchEvents();
-  }, [activeCategories]);
+  }, []);
 
   useEffect(() => {
     // Set theme-color meta tag

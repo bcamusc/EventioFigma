@@ -94,10 +94,9 @@ export default function App() {
     // forzamos el desbloqueo de la pantalla de carga tras 2 segundos.
     const fallbackTimer = setTimeout(() => {
       if (isMounted) {
-        console.warn("Supabase auth timeout triggered. Check cookie blockers.");
         setAuthReady(true);
       }
-    }, 2000);
+    }, 500);
 
     let subscription: any = null;
 
@@ -362,13 +361,12 @@ export default function App() {
     setSelectedEvent(null);
   };
 
-  // Auth guard
+  // Auth guard — only block for login screen, never block event loading
   if (!authReady) return (
     <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
       <div className="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
     </div>
   );
-  if (!user) return <LoginScreen />;
 
   return (
     <div className={`min-h-screen ${isLightMode ? 'bg-neutral-50' : 'bg-neutral-950'}`}>

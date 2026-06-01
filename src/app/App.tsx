@@ -176,25 +176,35 @@ export default function App() {
     loadConfig();
   }, []);
 
+  const [debugMsg, setDebugMsg] = useState('Iniciando...');
+
   useEffect(() => {
+    let timer: any;
+
     async function fetchEvents() {
       setLoading(true);
+      setDebugMsg('Consultando Supabase...');
       try {
         const { data, error } = await supabase
           .from('events')
-          .select('*, venues(name, comuna)')
+          .select('id, title, category, subcategory, datetime, price, description, image_url, venue_id, venues(name, comuna)')
           .gte('datetime', new Date().toISOString())
           .order('datetime', { ascending: true })
           .limit(50);
 
-        if (error) throw error;
-        if (data) {
-          // Map DB columns to UI expectations
+        if (error) {
+          setDebugMsg(`Error Supabase: ${error.message}`);
+          throw error;
+        }
+
+        setDebugMsg(`Recibidos: ${data?.length || 0} eventos`);
+
+        if (data && data.length > 0) {
           const mappedEvents = data.map((e: any) => {
             const dateObj = new Date(e.datetime);
             const timeStr = isNaN(dateObj.getTime()) ? '20:00' : dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
             const locationStr = e.venues ? `${e.venues.name}${e.venues.comuna ? `, ${e.venues.comuna}` : ''}` : 'Ubicación por confirmar';
-            
+
             return {
               id: e.id,
               title: e.title,
@@ -212,20 +222,28 @@ export default function App() {
             };
           });
           setEvents(mappedEvents);
+          setDebugMsg(`OK: ${mappedEvents.length} eventos cargados`);
+        } else {
+          setDebugMsg('Supabase respondió pero 0 eventos');
+          setEvents([]);
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error fetching events:', err);
+        setDebugMsg(`Error: ${err?.message || err}`);
         setEvents([]);
       } finally {
         setLoading(false);
-        clearTimeout(safetyTimer);
+        if (timer) clearTimeout(timer);
       }
     }
 
-    const safetyTimer = setTimeout(() => setLoading(false), 8000);
-    fetchEvents();
+    timer = setTimeout(() => {
+      setLoading(false);
+      setDebugMsg('Timeout: fetch tardó más de 8s');
+    }, 8000);
 
-    return () => clearTimeout(safetyTimer);
+    fetchEvents();
+    return () => { if (timer) clearTimeout(timer); };
   }, []);
 
   useEffect(() => {
@@ -368,6 +386,10 @@ export default function App() {
 
   return (
     <div className={`min-h-screen ${isLightMode ? 'bg-neutral-50' : 'bg-neutral-950'}`}>
+      {/* Debug banner — remove after fixing */}
+      <div style={{position:'fixed',bottom:0,left:0,right:0,zIndex:9999,background:'#1e1e2e',color:'#a6e3a1',padding:'8px 16px',fontSize:'12px',fontFamily:'monospace'}}>
+        {debugMsg} | loading={String(loading)} | events={events.length}
+      </div>
       <header className={`fixed top-0 w-full z-50 ${isLightMode ? 'bg-white/95' : 'bg-neutral-950/95'} backdrop-blur-xl border-b ${isLightMode ? 'border-neutral-200' : 'border-neutral-800'} transition-all ${isScrolled ? 'py-2' : ''}`}>
         <div>
           {!showSearchBar ? (

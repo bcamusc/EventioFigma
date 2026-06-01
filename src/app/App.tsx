@@ -180,16 +180,21 @@ export default function App() {
     async function fetchEvents() {
       setLoading(true);
       try {
-        const { data, error } = await supabase
-          .from('events')
-          .select('id, title, category, subcategory, datetime, price, description, image_url, venues(name, comuna)')
-          .not('datetime', 'is', null)
-          .gte('datetime', new Date().toISOString())
-          .order('datetime', { ascending: true })
-          .limit(50);
+        // Direct REST call — bypasses Supabase JS client auth initialization
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+        const now = new Date().toISOString();
+        const url = `${supabaseUrl}/rest/v1/events?select=id,title,category,subcategory,datetime,price,description,image_url,venues(name,comuna)&datetime=not.is.null&datetime=gte.${now}&order=datetime.asc&limit=50`;
+        const res = await fetch(url, {
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+          },
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
 
-        if (error) throw error;
-        if (data) {
+        if (data && data.length > 0) {
           const mappedEvents = data.map((e: any) => {
             const dateObj = new Date(e.datetime);
             const timeStr = isNaN(dateObj.getTime()) ? '20:00' : dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });

@@ -204,7 +204,7 @@ export default function App() {
               date: e.datetime || 'Próximamente',
               time: timeStr,
               location: locationStr,
-              category: (e.category && !e.category.toLowerCase().includes('error')) ? e.category.split('/')[0] : 'Sin clasificar',
+              category: (e.category && !e.category.toLowerCase().includes('error')) ? e.category.split('/')[0] : null,
               subcategory: (e.subcategory && !e.subcategory.toLowerCase().includes('error')) ? e.subcategory : null,
               comuna: e.venues?.comuna || null,
               price: e.price ? `$${e.price}` : 'Gratis / No indicado',

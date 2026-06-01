@@ -187,7 +187,8 @@ export default function App() {
       try {
         const { data, error } = await supabase
           .from('events')
-          .select('id, title, category, subcategory, datetime, price, description, image_url, venue_id, venues(name, comuna)')
+          .select('id, title, category, subcategory, datetime, price, description, image_url, venues(name, comuna)')
+          .not('datetime', 'is', null)
           .gte('datetime', new Date().toISOString())
           .order('datetime', { ascending: true })
           .limit(50);
